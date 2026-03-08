@@ -10,7 +10,7 @@ const FEATURED_PRODUCTS = [
     id: 1,
     name: "Lorem ipsum",
     tagline: "hello goodbye hello",
-    image: "/images/product1.jpg",
+    image: "/images/product1.png",
     alt: "Crochet pig amigurumi",
   },
   {
