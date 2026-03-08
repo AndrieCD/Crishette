@@ -1,13 +1,12 @@
 "use client";
 // src/app/login/page.tsx
 // Login & Register page — matches Section 1 Figma (Security & User Access)
-// 'use client' is needed here because we use useState for form inputs,
-// and call Supabase auth methods on button click.
-
+// 'use client' is needed here because we use useState to toggle between
+// Login and Register views, and handle form input changes.
+import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import Link from "next/link";
 
 // ── Scallop bottom border (used on register card) ─────────────────────────────
 function ScallopBottom() {
@@ -39,10 +38,11 @@ function ScallopBottom() {
   );
 }
 
-// ── Wavy yarn background pattern ──────────────────────────────────────────────
+// ── Wavy yarn background pattern ─────────────────────────────────────────────
 function YarnBackground() {
   return (
     <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
+      {/* Decorative wavy lines mimicking the yarn texture in the Figma */}
       {[...Array(8)].map((_, i) => (
         <svg
           key={i}
@@ -63,22 +63,22 @@ function YarnBackground() {
   );
 }
 
-// ── Social button ─────────────────────────────────────────────────────────────
+// ── Social button component ───────────────────────────────────────────────────
 function SocialButton({
   provider,
   action,
-  onClick,
 }: {
   provider: "Facebook" | "Google";
   action: "Sign in" | "Sign up";
-  onClick: () => void;
 }) {
   const icon =
     provider === "Facebook" ? (
+      // Facebook F icon
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
       </svg>
     ) : (
+      // Google G icon
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -90,7 +90,6 @@ function SocialButton({
   return (
     <button
       type="button"
-      onClick={onClick}
       className="w-full flex items-center justify-center gap-2 border-2 border-[#C0395A] text-[#C0395A] bg-transparent rounded-full py-2 px-4 font-semibold text-sm hover:bg-pink-50 transition-colors font-['Fredoka']"
     >
       {icon}
@@ -99,7 +98,7 @@ function SocialButton({
   );
 }
 
-// ── Toggle switch ─────────────────────────────────────────────────────────────
+// ── Toggle switch component ───────────────────────────────────────────────────
 function ToggleSwitch({
   checked,
   onChange,
@@ -130,72 +129,68 @@ function ToggleSwitch({
 
 // ── REGISTER PANEL ────────────────────────────────────────────────────────────
 function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
-  const router = useRouter();
-  const supabase = createClient();
-
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!email.includes("@")) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    if (password !== confirm) {
-      setError("Passwords do not match.");
+      setEmailError(true);
       return;
     }
 
+    if (!username || !password || !confirm) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirm) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    setEmailError(false);
     setLoading(true);
 
-    // Create the user account in Supabase Auth
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username }, // saved to user metadata
+        data: {
+          username,
+        },
       },
     });
 
     setLoading(false);
 
-    if (signUpError) {
-      setError(signUpError.message);
+    if (error) {
+      alert(error.message);
       return;
     }
 
-    // ✅ Registered! Redirect home — middleware sees the new session and allows it
-    router.push("/");
-    router.refresh();
-  };
-
-  const handleSocialLogin = async (provider: "google" | "facebook") => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/` },
-    });
+    alert("Sign up successful. Check your email for verification.");
+    console.log("Register success:", data);
   };
 
   return (
+    // Full-page crimson background with yarn texture
     <div
       className="relative min-h-screen w-full flex flex-col items-center justify-center px-6 py-10 overflow-hidden"
       style={{ backgroundColor: "#C0395A" }}
     >
       <YarnBackground />
 
+      {/* White card with scallop bottom */}
       <div className="relative z-10 w-full max-w-sm bg-[#FFF0F6] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+        {/* Card top: logo + heading */}
         <div className="flex flex-col items-center pt-8 pb-4 px-8">
           <Image
             src="/assets/CrishetteLogo.png"
@@ -204,30 +199,26 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
             height={72}
             className="drop-shadow-md"
           />
-          <h1 className="font-['Fredoka'] font-bold text-2xl mt-1 tracking-wide text-[#C0395A]">
+          <h1 className="font-['Fredoka'] font-bold text-2xl text-white mt-1 tracking-wide drop-shadow"
+            style={{ WebkitTextStroke: "1px #C0395A", color: "white" }}
+          >
             WELCOMES YOU!
           </h1>
+          {/* The heading color in Figma is white with a pink outline */}
           <p className="text-center text-sm text-[#4B2E39] mt-2 font-['Fredoka']">
-            Log in to continue your cozy shopping experience and manage your
-            handmade creations securely.
+            Log in to continue your cozy shopping experience and
+            manage your handmade creations securely.
           </p>
         </div>
 
+        {/* Form area */}
         <div className="px-8 pb-6 flex flex-col gap-3">
           <p className="text-center text-sm font-semibold text-[#4B2E39] font-['Fredoka']">
             Register with
           </p>
 
-          <SocialButton
-            provider="Facebook"
-            action="Sign up"
-            onClick={() => handleSocialLogin("facebook")}
-          />
-          <SocialButton
-            provider="Google"
-            action="Sign up"
-            onClick={() => handleSocialLogin("google")}
-          />
+          <SocialButton provider="Facebook" action="Sign up" />
+          <SocialButton provider="Google" action="Sign up" />
 
           <div className="flex items-center gap-2 my-1">
             <div className="flex-1 h-px bg-pink-300" />
@@ -236,13 +227,25 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
-            />
+            {/* Email */}
+            <div>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setEmailError(false); }}
+                className={`w-full rounded-full border-2 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition ${
+                  emailError ? "border-red-400" : "border-pink-200"
+                }`}
+              />
+              {emailError && (
+                <p className="text-red-500 text-xs mt-1 ml-3 font-['Fredoka']">
+                  Invalid email
+                </p>
+              )}
+            </div>
+
+            {/* Username */}
             <input
               type="text"
               placeholder="Username"
@@ -250,6 +253,8 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
             />
+
+            {/* Password */}
             <input
               type="password"
               placeholder="Password"
@@ -257,6 +262,8 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
             />
+
+            {/* Confirm Password */}
             <input
               type="password"
               placeholder="Confirm Password"
@@ -265,24 +272,19 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
               className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
             />
 
-            {error && (
-              <p className="text-red-500 text-xs font-['Fredoka'] ml-1">
-                ⚠️ {error}
-              </p>
-            )}
-
             <ToggleSwitch
               checked={rememberMe}
               onChange={() => setRememberMe(!rememberMe)}
               label="Remember me"
             />
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md mt-1 disabled:opacity-50"
             >
-              {loading ? "Creating account..." : "Sign up"}
+              {loading ? "Signing up..." : "Sign up"}
             </button>
           </form>
 
@@ -297,6 +299,7 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
           </p>
         </div>
 
+        {/* Scallop bottom */}
         <ScallopBottom />
       </div>
     </div>
@@ -304,57 +307,50 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
 }
 
 // ── LOGIN PANEL ───────────────────────────────────────────────────────────────
-function LoginPanel({
-  onSwitchToRegister,
-}: {
-  onSwitchToRegister: () => void;
-}) {
-  const router = useRouter();
-  const supabase = createClient();
-
+function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+    const [loading, setLoading] = useState(false);
 
-    // Sign in with Supabase — checks email + password against auth table
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    setLoading(false);
+      if (!email || !password) {
+        setError("Please fill in all fields.");
+        return;
+      }
 
-    if (signInError) {
-      setError("Incorrect email or password. Please try again.");
-      return;
-    }
+      setError("");
+      setLoading(true);
 
-    // ✅ Logged in! Redirect home — middleware now sees a valid session
-    router.push("/");
-    router.refresh();
-  };
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-  const handleSocialLogin = async (provider: "google" | "facebook") => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/` },
-    });
-  };
+      setLoading(false);
 
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      console.log("Login success:", data);
+      alert("Login successful!");
+    };
   return (
+    // Two-column layout: left = soft pink form, right = crimson branding
     <div className="min-h-screen w-full flex">
-      {/* Left: form */}
+
+      {/* ── Left: form side (soft pink) ─────────────────────────────── */}
       <div
         className="flex-1 flex flex-col justify-center px-10 py-12"
         style={{ backgroundColor: "#FFF0F6" }}
       >
+        {/* Curved right edge — mimics the Figma wave cutout */}
         <div className="max-w-sm w-full mx-auto flex flex-col gap-4">
           <div>
             <h1 className="font-['Fredoka'] font-bold text-2xl text-[#C0395A]">
@@ -365,16 +361,8 @@ function LoginPanel({
             </p>
           </div>
 
-          <SocialButton
-            provider="Facebook"
-            action="Sign in"
-            onClick={() => handleSocialLogin("facebook")}
-          />
-          <SocialButton
-            provider="Google"
-            action="Sign in"
-            onClick={() => handleSocialLogin("google")}
-          />
+          <SocialButton provider="Facebook" action="Sign in" />
+          <SocialButton provider="Google" action="Sign in" />
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-1">
             <div>
@@ -385,10 +373,7 @@ function LoginPanel({
                 type="email"
                 placeholder="lightninggirl2234@yahoo.com"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
+                onChange={(e) => { setEmail(e.target.value); setError(""); }}
                 className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
               />
             </div>
@@ -401,18 +386,13 @@ function LoginPanel({
                 type="password"
                 placeholder="••••••••••••••••"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setError("");
-                }}
+                onChange={(e) => { setPassword(e.target.value); setError(""); }}
                 className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
               />
             </div>
 
             {error && (
-              <p className="text-red-500 text-xs font-['Fredoka'] ml-1">
-                ⚠️ {error}
-              </p>
+              <p className="text-red-500 text-xs font-['Fredoka'] ml-1">{error}</p>
             )}
 
             <ToggleSwitch
@@ -421,13 +401,13 @@ function LoginPanel({
               label="Remember me"
             />
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? "Signing in..." : "Sign in"}
-            </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md disabled:opacity-50"
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
           </form>
 
           <p className="text-sm text-[#4B2E39] font-['Fredoka']">
@@ -442,12 +422,13 @@ function LoginPanel({
         </div>
       </div>
 
-      {/* Right: branding */}
+      {/* ── Right: branding side (crimson with yarn + logo) ─────────── */}
       <div
         className="hidden md:flex flex-1 relative items-center justify-center overflow-hidden"
         style={{ backgroundColor: "#C0395A" }}
       >
         <YarnBackground />
+
         <div className="relative z-10 flex flex-col items-center gap-4">
           <Image
             src="/assets/CrishetteLogo.png"
@@ -456,33 +437,32 @@ function LoginPanel({
             height={120}
             className="drop-shadow-xl"
           />
+          {/* Big brand wordmark */}
           <div className="text-center">
             <h2
               className="font-['Fredoka'] font-bold text-5xl text-white tracking-wide drop-shadow-lg"
               style={{ WebkitTextStroke: "2px #a02845" }}
             >
-              crisshette
+              crissh
+              <span className="inline-block w-8 h-8 bg-white rounded-full mx-1 align-middle shadow-inner" />
+              tte
             </h2>
             <p className="text-pink-200 text-sm font-['Fredoka'] mt-2 italic">
               ✦ your wish is my crochet
             </p>
           </div>
         </div>
-        <div className="absolute top-1/4 left-1/4 text-pink-200 text-2xl opacity-60 select-none">
-          ✦
-        </div>
-        <div className="absolute top-1/3 right-1/4 text-pink-300 text-3xl opacity-50 select-none">
-          ✦
-        </div>
-        <div className="absolute bottom-1/3 left-1/3 text-pink-200 text-xl opacity-40 select-none">
-          ✦
-        </div>
+
+        {/* Star sparkles — decorative, matching Figma */}
+        <div className="absolute top-1/4 left-1/4 text-pink-200 text-2xl opacity-60 select-none">✦</div>
+        <div className="absolute top-1/3 right-1/4 text-pink-300 text-3xl opacity-50 select-none">✦</div>
+        <div className="absolute bottom-1/3 left-1/3 text-pink-200 text-xl opacity-40 select-none">✦</div>
       </div>
     </div>
   );
 }
 
-// ── Main Page — toggles between Login and Register ────────────────────────────
+// ── Main Page: toggles between Login and Register ─────────────────────────────
 export default function LoginPage() {
   const [view, setView] = useState<"login" | "register">("login");
 
