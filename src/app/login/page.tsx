@@ -461,9 +461,7 @@ function LoginPanel({
               className="font-['Fredoka'] font-bold text-5xl text-white tracking-wide drop-shadow-lg"
               style={{ WebkitTextStroke: "2px #a02845" }}
             >
-              crissh
-              <span className="inline-block w-8 h-8 bg-white rounded-full mx-1 align-middle shadow-inner" />
-              tte
+              crisshette
             </h2>
             <p className="text-pink-200 text-sm font-['Fredoka'] mt-2 italic">
               ✦ your wish is my crochet
