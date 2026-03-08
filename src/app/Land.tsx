@@ -104,23 +104,22 @@ function FeaturedCard({
   return (
     <Link
       href="/product-catalog"
-      className="flex flex-col items-center gap-3 group cursor-pointer"
+      className="group flex w-full max-w-[260px] flex-col items-center gap-3 justify-self-center"
     >
       {/* Scalloped image container */}
       <div
-        className="relative w-52 h-52 md:w-60 md:h-60"
+        className="relative h-52 w-52 md:h-60 md:w-60"
         style={{
-          // CSS clip-path scallop circle effect
           clipPath:
             "polygon(50% 0%, 56% 3%, 63% 2%, 68% 7%, 75% 8%, 79% 14%, 86% 16%, 89% 23%, 95% 27%, 97% 34%, 100% 40%, 100% 47%, 98% 53%, 100% 60%, 98% 67%, 95% 73%, 89% 77%, 87% 84%, 81% 88%, 75% 92%, 68% 93%, 62% 98%, 56% 97%, 50% 100%, 44% 97%, 38% 98%, 32% 93%, 25% 92%, 19% 88%, 13% 84%, 11% 77%, 5% 73%, 2% 67%, 0% 60%, 2% 53%, 0% 47%, 0% 40%, 3% 34%, 5% 27%, 11% 23%, 14% 16%, 21% 14%, 25% 8%, 32% 7%, 37% 2%, 44% 3%)",
         }}
       >
         {/* Scallop border ring */}
-        <div className="absolute inset-0 bg-[#C0395A] rounded-full scale-105" />
-        <div className="absolute inset-0 bg-pink-100 rounded-full scale-[1.02]" />
+        <div className="absolute inset-0 rounded-full bg-[#C0395A] scale-105" />
+        <div className="absolute inset-0 rounded-full bg-pink-100 scale-[1.02]" />
 
         {/* Product image */}
-        <div className="relative w-full h-full rounded-full overflow-hidden group-hover:scale-105 transition-transform duration-300">
+        <div className="relative h-full w-full overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-105">
           <Image
             src={image}
             alt={alt}
@@ -133,10 +132,10 @@ function FeaturedCard({
 
       {/* Product info */}
       <div className="text-center">
-        <h3 className="font-['Fredoka'] font-semibold text-xl text-white drop-shadow-sm">
+        <h3 className="font-['Fredoka'] text-xl font-semibold text-white drop-shadow-sm">
           {name}
         </h3>
-        <p className="font-['Fredoka'] text-pink-200 text-sm">{tagline}</p>
+        <p className="font-['Fredoka'] text-sm text-pink-200">{tagline}</p>
       </div>
     </Link>
   );
@@ -145,19 +144,16 @@ function FeaturedCard({
 // ── Main StoreFront Page ──────────────────────────────────────────────────────
 export default function Land() {
   return (
-    <main
-      className="min-h-screen font-['Fredoka']"
-      style={{ backgroundColor: "#C0395A" }}
-    >
+    <main className="min-h-screen bg-[#C0395A] font-['Fredoka']">
       {/* ── Hero Banner with scrolling text ──────────────────────────────── */}
       <div className="relative overflow-hidden py-4">
         {/* Scrolling marquee text behind logo */}
-        <div className="absolute inset-0 flex items-center overflow-hidden opacity-30 pointer-events-none select-none">
+        <div className="pointer-events-none absolute inset-0 flex select-none items-center overflow-hidden opacity-30">
           <div className="flex whitespace-nowrap animate-[marquee_20s_linear_infinite]">
             {Array.from({ length: 6 }).map((_, i) => (
               <span
                 key={i}
-                className="text-4xl font-bold text-[#A02845] tracking-widest mx-4 uppercase"
+                className="mx-4 text-4xl font-bold uppercase tracking-widest text-[#A02845]"
               >
                 YOUR WISH IS MY CROCHET &nbsp;&nbsp;
               </span>
@@ -166,7 +162,7 @@ export default function Land() {
         </div>
 
         {/* Logo centered over marquee */}
-        <div className="relative flex flex-col items-center z-10 py-2">
+        <div className="relative z-10 flex flex-col items-center py-2">
           <Image
             src="/assets/CrishetteLogo.png"
             alt="Crishette Logo"
@@ -174,10 +170,7 @@ export default function Land() {
             height={90}
             className="drop-shadow-lg"
           />
-          <span
-            className="text-white font-bold tracking-wide mt-1"
-            style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "2rem" }}
-          >
+          <span className="mt-1 text-3xl font-bold tracking-wide text-white md:text-4xl">
             Crishette
           </span>
         </div>
@@ -185,24 +178,24 @@ export default function Land() {
 
       {/* ── Navbar card ──────────────────────────────────────────────────── */}
       <div className="px-4 md:px-8">
-        <div className="bg-[#FFF0F6] rounded-3xl shadow-lg overflow-hidden">
+        <div className="overflow-hidden rounded-3xl bg-[#FFF0F6] shadow-lg">
           {/* Nav bar inner row */}
-          <div className="flex items-center justify-between px-5 py-3 gap-3">
+          <div className="flex items-center justify-between gap-3 px-5 py-3">
             {/* Brand mark */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex shrink-0 items-center gap-2">
               <Image
                 src="/assets/CrishetteLogo.png"
                 alt="Crishette"
                 width={36}
                 height={36}
               />
-              <span className="font-bold text-[#C0395A] text-lg font-['Fredoka']">
+              <span className="font-['Fredoka'] text-lg font-bold text-[#C0395A]">
                 crishette
               </span>
             </div>
 
             {/* Search bar */}
-            <div className="flex-1 max-w-lg relative">
+            <div className="relative flex-1 max-w-lg">
               <input
                 type="text"
                 placeholder="Hinted search text"
@@ -211,7 +204,7 @@ export default function Land() {
               <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C0395A]">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -227,14 +220,14 @@ export default function Land() {
             </div>
 
             {/* Nav icons */}
-            <div className="flex items-center gap-4 shrink-0">
+            <div className="flex shrink-0 items-center gap-4">
               <Link
                 href="/product-catalog"
-                className="flex flex-col items-center text-[#C0395A] hover:text-pink-400 transition-colors"
+                className="flex flex-col items-center text-[#C0395A] transition-colors hover:text-pink-400"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6"
+                  className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -246,16 +239,16 @@ export default function Land() {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
-                <span className="text-xs font-['Fredoka']">shop</span>
+                <span className="font-['Fredoka'] text-xs">shop</span>
               </Link>
 
               <Link
                 href="/shopping-cart"
-                className="flex flex-col items-center text-[#C0395A] hover:text-pink-400 transition-colors"
+                className="flex flex-col items-center text-[#C0395A] transition-colors hover:text-pink-400"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6"
+                  className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -267,14 +260,14 @@ export default function Land() {
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 5h12.8M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
                   />
                 </svg>
-                <span className="text-xs font-['Fredoka']">cart</span>
+                <span className="font-['Fredoka'] text-xs">cart</span>
               </Link>
 
               <Link
                 href="/login"
-                className="flex flex-col items-center text-[#C0395A] hover:text-pink-400 transition-colors"
+                className="flex flex-col items-center text-[#C0395A] transition-colors hover:text-pink-400"
               >
-                <div className="w-7 h-7 rounded-full overflow-hidden border-2 border-[#C0395A]">
+                <div className="h-7 w-7 overflow-hidden rounded-full border-2 border-[#C0395A]">
                   <Image
                     src="/images/profile-placeholder.jpg"
                     alt="Profile"
@@ -283,7 +276,7 @@ export default function Land() {
                     className="object-cover"
                   />
                 </div>
-                <span className="text-xs font-['Fredoka']">profile</span>
+                <span className="font-['Fredoka'] text-xs">profile</span>
               </Link>
             </div>
           </div>
@@ -294,31 +287,28 @@ export default function Land() {
       </div>
 
       {/* ── Featured Products section ─────────────────────────────────────── */}
-      <section className="px-4 md:px-8 py-10">
+      <section className="px-4 py-10 md:px-8">
         {/* Section heading */}
-        <div className="flex justify-center mb-10">
-          <h2
-            className="bg-[#FDE68A] text-[#C0395A] font-extrabold text-2xl md:text-3xl px-8 py-2 rounded-xl tracking-widest uppercase shadow-md"
-            style={{ fontFamily: "'Fredoka', sans-serif" }}
-          >
+        <div className="mb-10 flex justify-center">
+          <h2 className="rounded-xl bg-[#FDE68A] px-8 py-2 text-2xl font-extrabold uppercase tracking-widest text-[#C0395A] shadow-md md:text-3xl">
             FEATURED PRODUCTS
           </h2>
         </div>
 
-        {/* Cards row */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 md:gap-12">
-          {FEATURED_PRODUCTS.map((product) => (
-            <FeaturedCard key={product.id} {...product} />
-          ))}
-        </div>
+      {/* Cards row */}
+      <div className="mx-auto grid max-w-6xl grid-cols-3 gap-6 md:gap-10 place-items-center">
+        {FEATURED_PRODUCTS.map((product) => (
+          <FeaturedCard key={product.id} {...product} />
+        ))}
+      </div>
       </section>
 
       {/* ── About Crishette footer band ───────────────────────────────────── */}
-      <section className="bg-[#FFF0F6] mx-0 mt-6 px-8 py-8 rounded-t-3xl">
-        <h3 className="font-bold text-[#C0395A] text-xl mb-2 font-['Fredoka']">
+      <section className="mt-6 rounded-t-3xl bg-[#FFF0F6] px-8 py-8">
+        <h3 className="mb-2 font-['Fredoka'] text-xl font-bold text-[#C0395A]">
           About Crishette
         </h3>
-        <p className="text-[#4B2E39] text-sm leading-relaxed max-w-3xl font-['Fredoka']">
+        <p className="max-w-3xl font-['Fredoka'] text-sm leading-relaxed text-[#4B2E39]">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
           minim veniam, quis nostrud exercitation ullamco laboris nisi ut
