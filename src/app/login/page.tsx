@@ -3,7 +3,7 @@
 // Login & Register page — matches Section 1 Figma (Security & User Access)
 // 'use client' is needed here because we use useState to toggle between
 // Login and Register views, and handle form input changes.
-
+import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -136,16 +136,48 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [confirm, setConfirm] = useState("");
   const [emailError, setEmailError] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Basic email validation
+
     if (!email.includes("@")) {
       setEmailError(true);
       return;
     }
+
+    if (!username || !password || !confirm) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirm) {
+      alert("Passwords do not match.");
+      return;
+    }
+
     setEmailError(false);
-    // TODO: wire up Supabase sign-up here
-    console.log("Register:", { email, username, password });
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+        },
+      },
+    });
+
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Sign up successful. Check your email for verification.");
+    console.log("Register success:", data);
   };
 
   return (
@@ -249,9 +281,10 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md mt-1"
+              disabled={loading}
+              className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md mt-1 disabled:opacity-50"
             >
-              Sign up
+              {loading ? "Signing up..." : "Sign up"}
             </button>
           </form>
 
@@ -280,17 +313,34 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError("Please fill in all fields.");
-      return;
-    }
-    setError("");
-    // TODO: wire up Supabase sign-in here
-    console.log("Login:", { email, password });
-  };
+    const [loading, setLoading] = useState(false);
 
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!email || !password) {
+        setError("Please fill in all fields.");
+        return;
+      }
+
+      setError("");
+      setLoading(true);
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      setLoading(false);
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      console.log("Login success:", data);
+      alert("Login successful!");
+    };
   return (
     // Two-column layout: left = soft pink form, right = crimson branding
     <div className="min-h-screen w-full flex">
@@ -351,12 +401,13 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
               label="Remember me"
             />
 
-            <button
-              type="submit"
-              className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md"
-            >
-              Sign in
-            </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md disabled:opacity-50"
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
           </form>
 
           <p className="text-sm text-[#4B2E39] font-['Fredoka']">
