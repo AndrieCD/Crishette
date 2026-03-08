@@ -1,13 +1,13 @@
 // src/lib/supabase.ts
-import { createClient } from "@supabase/supabase-js";
+// Initializes the Supabase client using environment variables from .env.local
+// Think of this like a "database connection string" in C# or Python —
+// we set it up once here and import it anywhere we need Supabase.
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+import { createBrowserClient } from "@supabase/ssr";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing Supabase environment variables. Check your .env.local file."
+export function createClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 }
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
