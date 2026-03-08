@@ -95,8 +95,8 @@ export default function AdminProductsPage() {
       prevProducts.map((product) =>
         product.id === id
           ? { ...product, published: !product.published }
-          : product
-      )
+          : product,
+      ),
     );
   };
 

@@ -199,15 +199,16 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
             height={72}
             className="drop-shadow-md"
           />
-          <h1 className="font-['Fredoka'] font-bold text-2xl text-white mt-1 tracking-wide drop-shadow"
+          <h1
+            className="font-['Fredoka'] font-bold text-2xl text-white mt-1 tracking-wide drop-shadow"
             style={{ WebkitTextStroke: "1px #C0395A", color: "white" }}
           >
             WELCOMES YOU!
           </h1>
           {/* The heading color in Figma is white with a pink outline */}
           <p className="text-center text-sm text-[#4B2E39] mt-2 font-['Fredoka']">
-            Log in to continue your cozy shopping experience and
-            manage your handmade creations securely.
+            Log in to continue your cozy shopping experience and manage your
+            handmade creations securely.
           </p>
         </div>
 
@@ -233,7 +234,10 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
                 type="email"
                 placeholder="Email"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setEmailError(false); }}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(false);
+                }}
                 className={`w-full rounded-full border-2 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition ${
                   emailError ? "border-red-400" : "border-pink-200"
                 }`}
@@ -307,44 +311,47 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
 }
 
 // ── LOGIN PANEL ───────────────────────────────────────────────────────────────
-function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
+function LoginPanel({
+  onSwitchToRegister,
+}: {
+  onSwitchToRegister: () => void;
+}) {
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      if (!email || !password) {
-        setError("Please fill in all fields.");
-        return;
-      }
+    if (!email || !password) {
+      setError("Please fill in all fields.");
+      return;
+    }
 
-      setError("");
-      setLoading(true);
+    setError("");
+    setLoading(true);
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      setLoading(false);
+    setLoading(false);
 
-      if (error) {
-        setError(error.message);
-        return;
-      }
+    if (error) {
+      setError(error.message);
+      return;
+    }
 
-      console.log("Login success:", data);
-      alert("Login successful!");
-    };
+    console.log("Login success:", data);
+    alert("Login successful!");
+  };
   return (
     // Two-column layout: left = soft pink form, right = crimson branding
     <div className="min-h-screen w-full flex">
-
       {/* ── Left: form side (soft pink) ─────────────────────────────── */}
       <div
         className="flex-1 flex flex-col justify-center px-10 py-12"
@@ -373,7 +380,10 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
                 type="email"
                 placeholder="lightninggirl2234@yahoo.com"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
                 className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
               />
             </div>
@@ -386,13 +396,18 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
                 type="password"
                 placeholder="••••••••••••••••"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
                 className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
               />
             </div>
 
             {error && (
-              <p className="text-red-500 text-xs font-['Fredoka'] ml-1">{error}</p>
+              <p className="text-red-500 text-xs font-['Fredoka'] ml-1">
+                {error}
+              </p>
             )}
 
             <ToggleSwitch
@@ -401,13 +416,13 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
               label="Remember me"
             />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md disabled:opacity-50"
-          >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md disabled:opacity-50"
+            >
+              {loading ? "Signing in..." : "Sign in"}
+            </button>
           </form>
 
           <p className="text-sm text-[#4B2E39] font-['Fredoka']">
@@ -443,9 +458,7 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
               className="font-['Fredoka'] font-bold text-5xl text-white tracking-wide drop-shadow-lg"
               style={{ WebkitTextStroke: "2px #a02845" }}
             >
-              crissh
-              <span className="inline-block w-8 h-8 bg-white rounded-full mx-1 align-middle shadow-inner" />
-              tte
+              crisshette
             </h2>
             <p className="text-pink-200 text-sm font-['Fredoka'] mt-2 italic">
               ✦ your wish is my crochet
@@ -454,9 +467,15 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
         </div>
 
         {/* Star sparkles — decorative, matching Figma */}
-        <div className="absolute top-1/4 left-1/4 text-pink-200 text-2xl opacity-60 select-none">✦</div>
-        <div className="absolute top-1/3 right-1/4 text-pink-300 text-3xl opacity-50 select-none">✦</div>
-        <div className="absolute bottom-1/3 left-1/3 text-pink-200 text-xl opacity-40 select-none">✦</div>
+        <div className="absolute top-1/4 left-1/4 text-pink-200 text-2xl opacity-60 select-none">
+          ✦
+        </div>
+        <div className="absolute top-1/3 right-1/4 text-pink-300 text-3xl opacity-50 select-none">
+          ✦
+        </div>
+        <div className="absolute bottom-1/3 left-1/3 text-pink-200 text-xl opacity-40 select-none">
+          ✦
+        </div>
       </div>
     </div>
   );

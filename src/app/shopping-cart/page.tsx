@@ -181,8 +181,8 @@ export default function ShoppingCartPage() {
   const toggleSelected = (id: number) => {
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
+        item.id === id ? { ...item, selected: !item.selected } : item,
+      ),
     );
   };
 
@@ -191,8 +191,8 @@ export default function ShoppingCartPage() {
       prev.map((item) =>
         item.id === id
           ? { ...item, quantity: Math.max(1, item.quantity + amount) }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -311,7 +311,10 @@ export default function ShoppingCartPage() {
           </div>
 
           {/* Body */}
-          <div className="mx-auto max-w-[900px] px-2 pt-16" style={{ color: "#ffffff" }}>
+          <div
+            className="mx-auto max-w-[900px] px-2 pt-16"
+            style={{ color: "#ffffff" }}
+          >
             <div
               className="mb-5 grid items-center gap-4"
               style={{ gridTemplateColumns: "52px 2fr 1fr 1fr 110px" }}
