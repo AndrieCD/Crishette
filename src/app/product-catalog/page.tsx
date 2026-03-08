@@ -447,7 +447,7 @@ export default function ProductCatalogPage() {
               </div>
 
               {/* Product grid — 4 columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-3">
                 {PRODUCTS.map((product) => (
                   <ProductCard key={product.id} {...product} />
                 ))}
