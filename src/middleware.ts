@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 🔒 Not logged in + trying to visit a protected page → send to /login
-  if (!user && pathname !== "/login") {
+  if (!user && pathname !== "/login" && pathname !== "/") {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     return NextResponse.redirect(loginUrl);
