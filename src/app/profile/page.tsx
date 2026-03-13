@@ -21,7 +21,7 @@ function YarnBackground() {
         <svg
           key={i}
           className="absolute"
-          style={{ top: `${i * 13}%`, left: "-10%" , width: "120%" }}
+          style={{ top: `${i * 13}%`, left: "-10%", width: "120%" }}
           viewBox="0 0 500 40"
           preserveAspectRatio="none"
         >
@@ -40,7 +40,13 @@ function YarnBackground() {
 // ── Cart icon SVG ─────────────────────────────────────────────────────────────
 function CartIcon() {
   return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <svg
+      className="w-5 h-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
       <line x1="3" y1="6" x2="21" y2="6" />
       <path d="M16 10a4 4 0 0 1-8 0" />
@@ -56,7 +62,9 @@ function ProfileSidebar({
   username: string;
   avatarSrc: string;
 }) {
-  const [activeTab, setActiveTab] = useState<"purchases" | "likes">("purchases");
+  const [activeTab, setActiveTab] = useState<"purchases" | "likes">(
+    "purchases",
+  );
 
   return (
     <aside className="w-full max-w-[200px] flex flex-col gap-3 shrink-0">
@@ -64,13 +72,21 @@ function ProfileSidebar({
       <div className="flex items-center gap-3 px-1">
         <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-md shrink-0">
           {avatarSrc ? (
-            <img src={avatarSrc} alt="avatar" className="w-full h-full object-cover" />
+            <img
+              src={avatarSrc}
+              alt="avatar"
+              className="w-full h-full object-cover"
+            />
           ) : (
-            <div className="w-full h-full bg-pink-200 flex items-center justify-center text-2xl">🐥</div>
+            <div className="w-full h-full bg-pink-200 flex items-center justify-center text-2xl">
+              🐥
+            </div>
           )}
         </div>
         <div>
-          <p className="font-['Fredoka'] font-semibold text-[#4B2E39] text-sm leading-tight">{username}</p>
+          <p className="font-['Fredoka'] font-semibold text-[#4B2E39] text-sm leading-tight">
+            {username}
+          </p>
           <button className="font-['Fredoka'] text-xs text-[#C0395A] hover:underline">
             edit profile
           </button>
@@ -132,9 +148,15 @@ function ProfilePictureCard({
       {/* Preview circle */}
       <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md">
         {avatarSrc ? (
-          <img src={avatarSrc} alt="Profile preview" className="w-full h-full object-cover" />
+          <img
+            src={avatarSrc}
+            alt="Profile preview"
+            className="w-full h-full object-cover"
+          />
         ) : (
-          <div className="w-full h-full bg-pink-200 flex items-center justify-center text-4xl">🐥</div>
+          <div className="w-full h-full bg-pink-200 flex items-center justify-center text-4xl">
+            🐥
+          </div>
         )}
       </div>
 
@@ -178,7 +200,13 @@ function ProfilePictureCard({
 }
 
 // ── My Profile Form ───────────────────────────────────────────────────────────
-function ProfileForm({ avatarSrc, onAvatarChange }: { avatarSrc: string; onAvatarChange: (src: string) => void }) {
+function ProfileForm({
+  avatarSrc,
+  onAvatarChange,
+}: {
+  avatarSrc: string;
+  onAvatarChange: (src: string) => void;
+}) {
   const [username, setUsername] = useState("angielelie");
   const [email, setEmail] = useState("angielelie@gmail.com");
   const [phone, setPhone] = useState("09123456789");
@@ -206,16 +234,15 @@ function ProfileForm({ avatarSrc, onAvatarChange }: { avatarSrc: string; onAvata
   return (
     <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-5 flex-1">
       {/* Heading */}
-      <h2 className="font-['Fredoka'] font-bold text-xl text-[#C0395A]">My Profile</h2>
+      <h2 className="font-['Fredoka'] font-bold text-xl text-[#C0395A]">
+        My Profile
+      </h2>
 
       <form onSubmit={handleSave} className="flex flex-col gap-4">
-
         {/* Top section: fields on left, picture on right */}
         <div className="flex gap-6 items-start">
-
           {/* Fields column */}
           <div className="flex flex-col gap-3 flex-1">
-
             {/* Username */}
             <div className="flex items-center gap-3">
               <label className="w-28 shrink-0 font-['Fredoka'] text-sm text-[#4B2E39] font-semibold">
@@ -230,7 +257,9 @@ function ProfileForm({ avatarSrc, onAvatarChange }: { avatarSrc: string; onAvata
               />
               <button
                 type="button"
-                onClick={() => setEditing(editing === "username" ? null : "username")}
+                onClick={() =>
+                  setEditing(editing === "username" ? null : "username")
+                }
                 className="text-[#C0395A] font-['Fredoka'] text-xs font-semibold hover:underline whitespace-nowrap"
               >
                 {editing === "username" ? "done" : "change?"}
@@ -334,8 +363,10 @@ export default function ProfilePage() {
   const [search, setSearch] = useState("");
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#FDE8EF" }}>
-
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ backgroundColor: "#FDE8EF" }}
+    >
       {/* ── HEADER BANNER (crimson with logo + tagline) ─────────────── */}
       <header
         className="relative w-full flex flex-col items-center justify-center py-5 overflow-hidden"
@@ -363,8 +394,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Star sparkles */}
-        <div className="absolute top-3 left-1/4 text-pink-200 text-xl opacity-50 select-none">✦</div>
-        <div className="absolute bottom-3 right-1/4 text-pink-300 text-2xl opacity-40 select-none">✦</div>
+        <div className="absolute top-3 left-1/4 text-pink-200 text-xl opacity-50 select-none">
+          ✦
+        </div>
+        <div className="absolute bottom-3 right-1/4 text-pink-300 text-2xl opacity-40 select-none">
+          ✦
+        </div>
       </header>
 
       {/* ── SEARCH BAR STRIP ────────────────────────────────────────── */}

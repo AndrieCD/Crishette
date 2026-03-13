@@ -295,12 +295,12 @@ export default function Land() {
           </h2>
         </div>
 
-      {/* Cards row */}
-      <div className="mx-auto grid max-w-6xl grid-cols-3 gap-6 md:gap-10 place-items-center">
-        {FEATURED_PRODUCTS.map((product) => (
-          <FeaturedCard key={product.id} {...product} />
-        ))}
-      </div>
+        {/* Cards row */}
+        <div className="mx-auto grid max-w-6xl grid-cols-3 gap-6 md:gap-10 place-items-center">
+          {FEATURED_PRODUCTS.map((product) => (
+            <FeaturedCard key={product.id} {...product} />
+          ))}
+        </div>
       </section>
 
       {/* ── About Crishette footer band ───────────────────────────────────── */}
