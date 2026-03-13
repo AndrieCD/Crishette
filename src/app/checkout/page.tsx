@@ -1,0 +1,571 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+
+type CheckoutItem = {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  alt: string;
+  selected?: boolean;
+};
+
+type Address = {
+  fullName: string;
+  phone: string;
+  addressLine: string;
+};
+
+type ShippingOption = {
+  id: string;
+  label: string;
+  fee: number;
+  note: string;
+};
+
+type PaymentMethod = "Cash On Delivery" | "GCash" | "Maya";
+
+const initialAddress: Address = {
+  fullName: "Trysthan Joshua Jireh Fernando",
+  phone: "09456214599",
+  addressLine:
+    "Gate 2 Lot 24 Rainbow Village 5 Phase 3, Hemlock St. Barangay 171, Caloocan City Metro Manila",
+};
+
+const shippingOptions: ShippingOption[] = [
+  {
+    id: "standard",
+    label: "Standard Shipping",
+    fee: 1.5,
+    note: "Guaranteed to get by 12 Feb",
+  },
+  {
+    id: "express",
+    label: "Express Shipping",
+    fee: 3.0,
+    note: "Guaranteed to get by 9 Feb",
+  },
+  {
+    id: "local",
+    label: "Standard Local",
+    fee: 1.0,
+    note: "Guaranteed to get by 14 Feb",
+  },
+];
+
+function ScallopHeader() {
+  const scallops = Array.from({ length: 12 });
+
+  return (
+    <div className="pointer-events-none absolute left-0 right-0 top-full flex h-[38px] overflow-hidden">
+      {scallops.map((_, index) => (
+        <div
+          key={index}
+          className="h-[38px] flex-1 rounded-b-full bg-[#f6dfe6]"
+        />
+      ))}
+    </div>
+  );
+}
+
+function ChangeButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="min-w-[120px] rounded-full bg-[#c93b57] px-6 py-2 text-[16px] font-bold text-white transition hover:opacity-90"
+    >
+      change
+    </button>
+  );
+}
+
+function SectionModal({
+  title,
+  children,
+  onClose,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4">
+      <div className="w-full max-w-[520px] rounded-[28px] bg-[#fff7f9] p-6 shadow-2xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-[24px] font-extrabold text-[#c93b57]">{title}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full bg-[#c93b57] px-4 py-1 text-sm font-bold text-white"
+          >
+            close
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export default function CheckoutPage() {
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const [address, setAddress] = useState<Address>(initialAddress);
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>("Cash On Delivery");
+  const [selectedShippingId, setSelectedShippingId] = useState("standard");
+
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+
+  const [draftAddress, setDraftAddress] = useState<Address>(initialAddress);
+  const router = useRouter();
+
+  useEffect(() => {
+    const rawItems = localStorage.getItem("checkoutItems");
+
+    if (rawItems) {
+      try {
+        const parsedItems: CheckoutItem[] = JSON.parse(rawItems);
+        setCheckoutItems(parsedItems);
+      } catch (error) {
+        console.error("Failed to parse checkout items:", error);
+      }
+    }
+
+    setIsLoaded(true);
+  }, []);
+
+  const selectedShipping = useMemo(() => {
+    return (
+      shippingOptions.find((option) => option.id === selectedShippingId) ??
+      shippingOptions[0]
+    );
+  }, [selectedShippingId]);
+
+  const itemSubtotal = useMemo(() => {
+    return checkoutItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+  }, [checkoutItems]);
+
+  const totalQuantity = useMemo(() => {
+    return checkoutItems.reduce((sum, item) => sum + item.quantity, 0);
+  }, [checkoutItems]);
+
+  const totalPayment = itemSubtotal + selectedShipping.fee;
+
+  const handleSaveAddress = () => {
+    setAddress(draftAddress);
+    setShowAddressModal(false);
+  };
+
+const handlePlaceOrder = () => {
+  const rawCheckoutItems = localStorage.getItem("checkoutItems");
+  const rawCartItems = localStorage.getItem("cartItems");
+
+  const checkoutItems = rawCheckoutItems ? JSON.parse(rawCheckoutItems) : [];
+  const cartItems = rawCartItems ? JSON.parse(rawCartItems) : [];
+
+  const remainingCartItems = cartItems.filter((cartItem: any) => {
+    const matchedCheckoutItem = checkoutItems.find(
+      (checkoutItem: any) =>
+        checkoutItem.id === cartItem.id &&
+        checkoutItem.color === cartItem.color &&
+        checkoutItem.size === cartItem.size
+    );
+
+    return !matchedCheckoutItem;
+  });
+
+  localStorage.setItem("cartItems", JSON.stringify(remainingCartItems));
+  localStorage.removeItem("checkoutItems");
+
+  setOrderPlaced(true);
+};
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (checkoutItems.length === 0 && !orderPlaced) {
+    return (
+      <main className="min-h-screen bg-[#f7edf1] px-4 py-6 md:px-8 md:py-8">
+        <div className="mx-auto w-full max-w-[1400px] bg-[#c93b57] p-4 md:p-6">
+          <section className="flex min-h-[calc(100vh-96px)] flex-col items-center justify-center rounded-[34px] bg-[#f9f6f7] px-6 py-10 text-center">
+            <h1 className="text-[34px] font-extrabold text-[#c93b57]">
+              No items selected
+            </h1>
+            <p className="mt-3 text-[18px] font-semibold text-[#c93b57]">
+              Please go back to your cart and choose at least one item.
+            </p>
+
+            <Link
+              href="/shopping-cart"
+              className="mt-8 rounded-full bg-[#c93b57] px-8 py-3 text-[22px] font-extrabold text-white"
+            >
+              back to cart
+            </Link>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  if (orderPlaced) {
+    return (
+      <main className="min-h-screen bg-[#f7edf1] px-4 py-6 md:px-8 md:py-8">
+        <div className="mx-auto w-full max-w-[1400px] bg-[#c93b57] p-4 md:p-6">
+          <section className="flex min-h-[calc(100vh-96px)] flex-col items-center justify-center rounded-[34px] bg-[#f9f6f7] px-6 py-10 text-center">
+            <h1 className="text-[34px] font-extrabold text-[#c93b57] md:text-[48px]">
+              Order placed!
+            </h1>
+            <p className="mt-3 max-w-[500px] text-[18px] font-semibold text-[#c93b57]">
+              Your checkout flow is now connected locally from cart to payment.
+            </p>
+
+            <div className="mt-8 rounded-[24px] border-[3px] border-[#e4b8c2] bg-white px-6 py-5 text-left text-[#c93b57]">
+              <p className="text-[18px] font-bold">
+                Items: {totalQuantity}
+              </p>
+              <p className="text-[18px] font-bold">
+                Payment Method: {paymentMethod}
+              </p>
+              <p className="text-[18px] font-bold">
+                Shipping: {selectedShipping.label}
+              </p>
+              <p className="text-[18px] font-bold">
+                Total Paid: ${totalPayment.toFixed(2)}
+              </p>
+            </div>
+
+            <Link
+              href="/shopping-cart"
+              className="mt-8 rounded-full bg-[#c93b57] px-8 py-3 text-[24px] font-extrabold text-white"
+            >
+              back to cart
+            </Link>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-[#f7edf1] px-4 py-6 md:px-8 md:py-8">
+      <div className="mx-auto w-full max-w-[1400px] bg-[#c93b57] p-4 md:p-6">
+        <section className="min-h-[calc(100vh-96px)] rounded-[34px] bg-[#f9f6f7] px-5 pb-8 pt-5 md:px-10 md:pb-10 md:pt-6">
+          <div className="relative rounded-[28px] bg-[#f6dfe6] px-5 py-5">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/assets/CrishetteLogo.png"
+                alt="Crishette logo"
+                width={42}
+                height={42}
+                className="h-10 w-10 object-contain"
+              />
+              <div className="flex items-center gap-2 text-[#c93b57]">
+                <span className="text-[28px] font-bold leading-none">
+                  crishette
+                </span>
+                <span className="text-[18px] font-bold leading-none">
+                  | checkout
+                </span>
+              </div>
+            </div>
+
+            <ScallopHeader />
+          </div>
+
+          <div className="pt-14 text-[#c93b57]">
+            <div className="border-t-[3px] border-[#e4b8c2] py-5">
+              <div className="mb-3">
+                <h2 className="text-[20px] font-extrabold uppercase">
+                  Delivery Address
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.1fr_1.6fr_auto] md:items-start">
+                <div className="text-[18px] font-semibold leading-tight">
+                  <p>{address.fullName}</p>
+                  <p className="mt-1">{address.phone}</p>
+                </div>
+
+                <div className="text-[18px] font-semibold leading-tight">
+                  {address.addressLine}
+                </div>
+
+                <div className="md:justify-self-end">
+                  <ChangeButton
+                    onClick={() => {
+                      setDraftAddress(address);
+                      setShowAddressModal(true);
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t-[3px] border-[#e4b8c2] py-5">
+              <div className="mb-5 grid grid-cols-[2fr_1fr_1fr_1fr] gap-3">
+                <h2 className="text-[18px] font-extrabold uppercase md:text-[20px]">
+                  Product Ordered
+                </h2>
+                <h2 className="text-center text-[18px] font-extrabold uppercase md:text-[20px]">
+                  Unit Price
+                </h2>
+                <h2 className="text-center text-[18px] font-extrabold uppercase md:text-[20px]">
+                  Quantity
+                </h2>
+                <h2 className="text-center text-[18px] font-extrabold uppercase md:text-[20px]">
+                  Item Subtotal
+                </h2>
+              </div>
+
+              <div className="space-y-5">
+                {checkoutItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="grid grid-cols-[2fr_1fr_1fr_1fr] items-center gap-3"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="overflow-hidden rounded-[6px] border-[4px] border-[#e7748f]">
+                        <Image
+                          src={item.image}
+                          alt={item.alt}
+                          width={110}
+                          height={110}
+                          className="h-[110px] w-[110px] object-cover"
+                        />
+                      </div>
+
+                      <p className="max-w-[180px] text-[20px] font-bold leading-[1] md:text-[22px]">
+                        {item.name}
+                      </p>
+                    </div>
+
+                    <p className="text-center text-[34px] font-bold md:text-[48px]">
+                      ${item.price.toFixed(2)}
+                    </p>
+
+                    <p className="text-center text-[34px] font-bold md:text-[48px]">
+                      {item.quantity}
+                    </p>
+
+                    <p className="text-center text-[34px] font-bold md:text-[48px]">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t-[3px] border-[#e4b8c2] py-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto] md:items-center">
+                <h2 className="text-[20px] font-extrabold uppercase">
+                  Payment Method
+                </h2>
+
+                <p className="text-[18px] font-bold md:text-[20px]">
+                  {paymentMethod}
+                </p>
+
+                <div className="md:justify-self-end">
+                  <ChangeButton onClick={() => setShowPaymentModal(true)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-y-[3px] border-[#e4b8c2] py-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1.3fr_auto_auto] md:items-center">
+                <h2 className="text-[20px] font-extrabold uppercase">
+                  Shipping Option
+                </h2>
+
+                <div>
+                  <p className="text-[18px] font-bold md:text-[20px]">
+                    {selectedShipping.label}
+                  </p>
+                  <p className="text-[16px] italic text-[#64865b] md:text-[18px]">
+                    {selectedShipping.note}
+                  </p>
+                </div>
+
+                <p className="text-[20px] font-bold">
+                  ${selectedShipping.fee.toFixed(2)}
+                </p>
+
+                <div className="md:justify-self-end">
+                  <ChangeButton onClick={() => router.push("/shipping-method")} />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-7 flex justify-end">
+              <div className="w-full max-w-[320px]">
+                <div className="mb-1 flex items-center justify-between text-[18px] font-semibold">
+                  <span>Merchandise Subtotal</span>
+                  <span>${itemSubtotal.toFixed(2)}</span>
+                </div>
+
+                <div className="mb-1 flex items-center justify-between text-[18px] font-semibold">
+                  <span>Shipping Subtotal</span>
+                  <span>${selectedShipping.fee.toFixed(2)}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-[22px] font-extrabold">
+                  <span>Total Payment:</span>
+                  <span className="text-[38px] leading-none">
+                    ${totalPayment.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-7 flex flex-col items-end gap-4">
+              <button
+                type="button"
+                onClick={handlePlaceOrder}
+                className="rounded-full bg-[#c93b57] px-8 py-3 text-[28px] font-extrabold leading-none text-white transition hover:opacity-90 md:text-[32px]"
+              >
+                place order
+              </button>
+
+              <p className="max-w-[360px] text-right text-[16px] italic leading-tight text-[#64865b] md:text-[18px]">
+                Each product is carefully handmade. Please allow 5–7 business
+                days (1 creation week) for production before shipping.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {showAddressModal && (
+        <SectionModal
+          title="Change Delivery Address"
+          onClose={() => setShowAddressModal(false)}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-bold text-[#c93b57]">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={draftAddress.fullName}
+                onChange={(e) =>
+                  setDraftAddress((prev) => ({
+                    ...prev,
+                    fullName: e.target.value,
+                  }))
+                }
+                className="w-full rounded-full border-2 border-[#e4b8c2] px-4 py-2 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-bold text-[#c93b57]">
+                Phone
+              </label>
+              <input
+                type="text"
+                value={draftAddress.phone}
+                onChange={(e) =>
+                  setDraftAddress((prev) => ({
+                    ...prev,
+                    phone: e.target.value,
+                  }))
+                }
+                className="w-full rounded-full border-2 border-[#e4b8c2] px-4 py-2 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-bold text-[#c93b57]">
+                Address
+              </label>
+              <textarea
+                value={draftAddress.addressLine}
+                onChange={(e) =>
+                  setDraftAddress((prev) => ({
+                    ...prev,
+                    addressLine: e.target.value,
+                  }))
+                }
+                rows={4}
+                className="w-full rounded-[18px] border-2 border-[#e4b8c2] px-4 py-3 outline-none"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSaveAddress}
+              className="rounded-full bg-[#c93b57] px-6 py-2 text-lg font-bold text-white"
+            >
+              save address
+            </button>
+          </div>
+        </SectionModal>
+      )}
+
+      {showPaymentModal && (
+        <SectionModal
+          title="Choose Payment Method"
+          onClose={() => setShowPaymentModal(false)}
+        >
+          <div className="space-y-3">
+            {(["Cash On Delivery", "GCash", "Maya"] as PaymentMethod[]).map(
+              (method) => (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod(method);
+                    setShowPaymentModal(false);
+                  }}
+                  className={`block w-full rounded-[18px] border-2 px-4 py-3 text-left text-lg font-bold ${
+                    paymentMethod === method
+                      ? "border-[#c93b57] bg-[#fbe8ee] text-[#c93b57]"
+                      : "border-[#e4b8c2] bg-white text-[#c93b57]"
+                  }`}
+                >
+                  {method}
+                </button>
+              )
+            )}
+          </div>
+        </SectionModal>
+      )}
+
+    </main>
+  );
+
+    useEffect(() => {
+    const rawItems = localStorage.getItem("checkoutItems");
+
+    if (rawItems) {
+        try {
+        const parsedItems: CheckoutItem[] = JSON.parse(rawItems);
+        setCheckoutItems(parsedItems);
+        } catch (error) {
+        console.error("Failed to parse checkout items:", error);
+        }
+    }
+
+    const savedShippingId = localStorage.getItem("selectedShippingId");
+    if (savedShippingId) {
+        setSelectedShippingId(savedShippingId);
+    }
+
+    setIsLoaded(true);
+    }, []);
+}

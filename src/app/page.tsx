@@ -1,5 +1,5 @@
-import Land from "./Land";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <Land />;
+  redirect("/land");
 }
