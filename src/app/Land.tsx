@@ -8,22 +8,22 @@ import Link from "next/link";
 const FEATURED_PRODUCTS = [
   {
     id: 1,
-    name: "Lorem ipsum",
-    tagline: "hello goodbye hello",
+    name: "Pig Amigurumi",
+    tagline: "Perfect for attaching to bags, keys, or pouches.",
     image: "/images/product1.png",
     alt: "Crochet pig amigurumi",
   },
   {
     id: 2,
-    name: "Lorem ipsum",
-    tagline: "hello goodbye hello",
+    name: "Tulip Bouquet",
+    tagline: "A beautiful and lasting flower gift perfect for any occasion.",
     image: "/images/product2.png",
     alt: "Crochet tulip bouquet",
   },
   {
     id: 3,
-    name: "Lorem ipsum",
-    tagline: "hello goodbye hello",
+    name: "Bunny with Heart",
+    tagline: "Soft, charming, and perfect as a small gift",
     image: "/images/product3.png",
     alt: "Crochet bunny with heart",
   },
