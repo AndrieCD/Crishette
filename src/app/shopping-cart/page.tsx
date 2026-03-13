@@ -1,84 +1,33 @@
-// src/app/shopping-cart/page.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type CartItem = {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
   image: string;
   alt: string;
   selected: boolean;
+  color: string;
+  size: string;
 };
 
-const initialCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: "Tomorrow crochet tulips",
-    price: 3.66,
-    quantity: 1,
-    image: "/images/product3.png",
-    alt: "Crochet tulips product",
-    selected: false,
-  },
-  {
-    id: 2,
-    name: "Tomorrow crochet tulips",
-    price: 3.66,
-    quantity: 1,
-    image: "/images/product3.png",
-    alt: "Crochet tulips product",
-    selected: false,
-  },
-  {
-    id: 3,
-    name: "Tomorrow crochet tulips",
-    price: 3.66,
-    quantity: 1,
-    image: "/images/product3.png",
-    alt: "Crochet tulips product",
-    selected: false,
-  },
-];
+function ScallopHeader() {
+  const scallops = Array.from({ length: 12 });
 
-function ScallopBottom() {
   return (
-    <div className="absolute left-0 right-0 top-full z-10 overflow-hidden leading-none">
-      <svg
-        viewBox="0 0 1200 60"
-        xmlns="http://www.w3.org/2000/svg"
-        className="block h-[34px] w-full"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0,0 H1200 V10
-             C1170,10 1170,60 1140,60
-             C1110,60 1110,10 1080,10
-             C1050,10 1050,60 1020,60
-             C990,60 990,10 960,10
-             C930,10 930,60 900,60
-             C870,60 870,10 840,10
-             C810,10 810,60 780,60
-             C750,60 750,10 720,10
-             C690,10 690,60 660,60
-             C630,60 630,10 600,10
-             C570,10 570,60 540,60
-             C510,60 510,10 480,10
-             C450,10 450,60 420,60
-             C390,60 390,10 360,10
-             C330,10 330,60 300,60
-             C270,60 270,10 240,10
-             C210,10 210,60 180,60
-             C150,60 150,10 120,10
-             C90,10 90,60 60,60
-             C30,60 30,10 0,10 Z"
-          fill="#f7e3ec"
+    <div className="pointer-events-none absolute left-0 right-0 top-full flex h-[38px] overflow-hidden">
+      {scallops.map((_, index) => (
+        <div
+          key={index}
+          className="h-[38px] flex-1 rounded-b-full bg-[#f6dfe6]"
         />
-      </svg>
+      ))}
     </div>
   );
 }
@@ -95,12 +44,16 @@ function CartCheckbox({
       type="button"
       onClick={onToggle}
       aria-pressed={checked}
-      className="flex h-9 w-9 items-center justify-center rounded-lg border border-white bg-white"
+      className={`flex h-10 w-10 items-center justify-center rounded-[10px] border-2 transition ${
+        checked
+          ? "border-[#c93b57] bg-[#fbe8ee]"
+          : "border-[#e4b8c2] bg-white"
+      }`}
     >
       {checked && (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 text-[#cb3859]"
+          className="h-5 w-5 text-[#c93b57]"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -125,21 +78,21 @@ function QuantityControl({
   onIncrease: () => void;
 }) {
   return (
-    <div className="flex h-8 items-center overflow-hidden rounded-md bg-[#f2eef0] text-[#76636b] shadow-sm">
+    <div className="flex h-10 items-center overflow-hidden rounded-[10px] border-2 border-[#e4b8c2] bg-white text-[#7a5d67] shadow-sm">
       <button
         type="button"
         onClick={onDecrease}
-        className="px-3 text-lg font-bold"
+        className="px-4 text-xl font-bold transition hover:bg-[#fbe8ee]"
       >
         −
       </button>
-      <span className="min-w-[28px] text-center text-base font-bold">
+      <span className="min-w-[38px] text-center text-base font-bold">
         {quantity}
       </span>
       <button
         type="button"
         onClick={onIncrease}
-        className="px-3 text-lg font-bold"
+        className="px-4 text-xl font-bold transition hover:bg-[#fbe8ee]"
       >
         +
       </button>
@@ -159,7 +112,7 @@ function TopNavIcon({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center text-[10px] font-bold text-[#cb3859]"
+      className="flex flex-col items-center text-[11px] font-bold text-[#cb3859]"
     >
       <div className="mb-0.5">{children}</div>
       <span>{label}</span>
@@ -168,7 +121,27 @@ function TopNavIcon({
 }
 
 export default function ShoppingCartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const router = useRouter();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const raw = localStorage.getItem("cartItems");
+    if (raw) {
+      try {
+        const parsed: CartItem[] = JSON.parse(raw);
+        setCartItems(parsed);
+      } catch (error) {
+        console.error("Failed to parse cart items:", error);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  const persistCart = (items: CartItem[]) => {
+    setCartItems(items);
+    localStorage.setItem("cartItems", JSON.stringify(items));
+  };
 
   const total = useMemo(() => {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -178,239 +151,308 @@ export default function ShoppingCartPage() {
     return cartItems.reduce((sum, item) => sum + item.quantity, 0);
   }, [cartItems]);
 
-  const toggleSelected = (id: number) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
-    );
+  const selectedItems = useMemo(() => {
+    return cartItems.filter((item) => item.selected);
+  }, [cartItems]);
+
+  const toggleSelected = (index: number) => {
+    const updated = [...cartItems];
+    updated[index].selected = !updated[index].selected;
+    persistCart(updated);
   };
 
-  const changeQuantity = (id: number, amount: number) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + amount) }
-          : item
-      )
-    );
+  const changeQuantity = (index: number, amount: number) => {
+    const updated = [...cartItems];
+    updated[index].quantity = Math.max(1, updated[index].quantity + amount);
+    persistCart(updated);
   };
 
-  const deleteItem = (id: number) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const deleteItem = (index: number) => {
+    const updated = cartItems.filter((_, itemIndex) => itemIndex !== index);
+    persistCart(updated);
   };
+
+  const handleCheckout = () => {
+    if (selectedItems.length === 0) {
+      alert("Please select at least one item before checking out.");
+      return;
+    }
+
+    localStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
+    router.push("/checkout");
+  };
+
+  if (!isLoaded) {
+    return null;
+  }
 
   return (
-    <main
-      className="min-h-screen p-4 md:p-6"
-      style={{ backgroundColor: "#4a4a4a" }}
-    >
-      <div className="mx-auto w-full max-w-[980px]">
-        <section
-          className="px-4 pb-5 pt-4"
-          style={{ backgroundColor: "#cb3859" }}
-        >
-          {/* Header */}
-          <div
-            className="relative rounded-[28px] px-4 pb-8 pt-3"
-            style={{ backgroundColor: "#f7e3ec" }}
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex min-w-fit items-center gap-2">
+    <main className="min-h-screen bg-[#f7edf1] px-4 py-6 md:px-8 md:py-8">
+      <div className="mx-auto w-full max-w-[1400px] bg-[#c93b57] p-4 md:p-6">
+        <section className="min-h-[calc(100vh-96px)] rounded-[34px] bg-[#f9f6f7] px-5 pb-8 pt-5 md:px-10 md:pb-10 md:pt-6">
+          <div className="relative rounded-[28px] bg-[#f6dfe6] px-5 py-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex min-w-fit items-center gap-3">
                 <Image
                   src="/assets/CrishetteLogo.png"
                   alt="Crishette logo"
-                  width={34}
-                  height={34}
-                  className="h-8 w-8 object-contain"
+                  width={42}
+                  height={42}
+                  className="h-10 w-10 object-contain"
                 />
-                <div className="flex items-center gap-2">
-                  <span className="text-[22px] font-bold text-[#cb3859]">
+                <div className="flex items-center gap-2 text-[#c93b57]">
+                  <span className="text-[28px] font-bold leading-none">
                     crishette
                   </span>
-                  <span className="text-[13px] font-bold text-[#cb3859]">
+                  <span className="text-[18px] font-bold leading-none">
                     | shopping cart
                   </span>
                 </div>
               </div>
 
-              <div className="relative w-[240px]">
-                <input
-                  type="text"
-                  placeholder="Hinted search text"
-                  className="h-10 w-full rounded-full bg-white px-4 pr-10 text-xs text-gray-500 outline-none"
-                />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#555555]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-                    />
-                  </svg>
-                </span>
-              </div>
+              <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                <div className="relative w-full md:w-[280px]">
+                  <input
+                    type="text"
+                    placeholder="Hinted search text"
+                    className="h-11 w-full rounded-full bg-white px-4 pr-10 text-sm text-gray-500 outline-none"
+                  />
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#555555]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                      />
+                    </svg>
+                  </span>
+                </div>
 
-              <div className="flex items-start gap-4">
-                <TopNavIcon href="/product-catalog" label="shop">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-7 w-7"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.7}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                    />
-                  </svg>
-                </TopNavIcon>
+                <div className="flex items-start gap-5 md:gap-4">
+                  <TopNavIcon href="/product-catalog" label="shop">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-7 w-7"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.7}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                      />
+                    </svg>
+                  </TopNavIcon>
 
-                <TopNavIcon href="/shopping-cart" label="cart">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-7 w-7"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.7}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 5h12.8M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
-                    />
-                  </svg>
-                </TopNavIcon>
+                  <TopNavIcon href="/shopping-cart" label="cart">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-7 w-7"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.7}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 5h12.8M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
+                      />
+                    </svg>
+                  </TopNavIcon>
 
-                <TopNavIcon href="/login" label="profile">
-                  <div className="h-9 w-9 overflow-hidden rounded-full border-2 border-[#666666] bg-white">
-                    <Image
-                      src="/images/profile-placeholder.jpg"
-                      alt="Profile"
-                      width={36}
-                      height={36}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                </TopNavIcon>
-              </div>
-            </div>
-
-            <ScallopBottom />
-          </div>
-
-          {/* Body */}
-          <div className="mx-auto max-w-[900px] px-2 pt-16" style={{ color: "#ffffff" }}>
-            <div
-              className="mb-5 grid items-center gap-4"
-              style={{ gridTemplateColumns: "52px 2fr 1fr 1fr 110px" }}
-            >
-              <div />
-              <div className="text-left text-[18px] font-extrabold uppercase">
-                Product
-              </div>
-              <div className="text-center text-[18px] font-extrabold uppercase">
-                Unit Price
-              </div>
-              <div className="text-center text-[18px] font-extrabold uppercase">
-                Quantity
-              </div>
-              <div className="text-center text-[18px] font-extrabold uppercase">
-                Actions
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="grid items-center gap-4"
-                  style={{ gridTemplateColumns: "52px 2fr 1fr 1fr 110px" }}
-                >
-                  <div className="flex justify-center">
-                    <CartCheckbox
-                      checked={item.selected}
-                      onToggle={() => toggleSelected(item.id)}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="overflow-hidden rounded-[4px] border-[4px] border-[#f08aa0] shadow-sm">
+                  <TopNavIcon href="/profile" label="profile">
+                    <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#666666] bg-white">
                       <Image
-                        src={item.image}
-                        alt={item.alt}
-                        width={94}
-                        height={94}
-                        className="h-[94px] w-[94px] object-cover"
+                        src="/images/profile-placeholder.jpg"
+                        alt="Profile"
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
                       />
                     </div>
+                  </TopNavIcon>
+                </div>
+              </div>
+            </div>
 
-                    <div className="max-w-[150px]">
-                      <h2 className="text-[22px] font-bold leading-[0.95] text-white">
-                        Tomorrow
-                        <br />
-                        crochet
-                        <br />
-                        tulips
-                      </h2>
+            <ScallopHeader />
+          </div>
+
+          <div className="pt-14 text-[#c93b57]">
+            {cartItems.length === 0 ? (
+              <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
+                <h2 className="text-[34px] font-extrabold">Your cart is empty</h2>
+                <p className="mt-3 text-[18px] font-semibold">
+                  Add a product first to continue shopping.
+                </p>
+                <Link
+                  href="/product-catalog"
+                  className="mt-6 rounded-full bg-[#c93b57] px-8 py-3 text-[22px] font-extrabold text-white"
+                >
+                  go to catalog
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="mb-5 border-t-[3px] border-[#e4b8c2] pt-5">
+                  <div className="hidden grid-cols-[70px_2.5fr_1fr_1fr_120px] gap-4 md:grid">
+                    <div />
+                    <div className="text-left text-[20px] font-extrabold uppercase">
+                      Product
+                    </div>
+                    <div className="text-center text-[20px] font-extrabold uppercase">
+                      Unit Price
+                    </div>
+                    <div className="text-center text-[20px] font-extrabold uppercase">
+                      Quantity
+                    </div>
+                    <div className="text-center text-[20px] font-extrabold uppercase">
+                      Actions
                     </div>
                   </div>
 
-                  <div className="text-center">
-                    <p className="text-[26px] font-extrabold text-white">
-                      ${item.price.toFixed(2)}
-                    </p>
-                  </div>
+                  <div className="space-y-4 md:space-y-5">
+                    {cartItems.map((item, index) => (
+                      <div
+                        key={`${item.id}-${item.color}-${item.size}-${index}`}
+                        className="rounded-[24px] border-2 border-[#ecd3d9] bg-white/70 p-4 md:rounded-none md:border-0 md:bg-transparent md:p-0"
+                      >
+                        <div className="hidden items-center gap-4 md:grid md:grid-cols-[70px_2.5fr_1fr_1fr_120px]">
+                          <div className="flex justify-center">
+                            <CartCheckbox
+                              checked={item.selected}
+                              onToggle={() => toggleSelected(index)}
+                            />
+                          </div>
 
-                  <div className="flex justify-center">
-                    <QuantityControl
-                      quantity={item.quantity}
-                      onDecrease={() => changeQuantity(item.id, -1)}
-                      onIncrease={() => changeQuantity(item.id, 1)}
-                    />
-                  </div>
+                          <div className="flex items-center gap-4">
+                            <div className="overflow-hidden rounded-[8px] border-[4px] border-[#e7748f]">
+                              <Image
+                                src={item.image}
+                                alt={item.alt}
+                                width={110}
+                                height={110}
+                                className="h-[110px] w-[110px] object-cover"
+                              />
+                            </div>
 
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => deleteItem(item.id)}
-                      className="text-[20px] font-bold text-white"
-                    >
-                      Delete
-                    </button>
+                            <div className="max-w-[260px]">
+                              <h2 className="text-[22px] font-bold leading-[1] text-[#c93b57]">
+                                {item.name}
+                              </h2>
+                              <p className="mt-2 text-[16px] font-semibold text-[#c93b57]">
+                                Color: <span className="capitalize">{item.color}</span>
+                              </p>
+                              <p className="text-[16px] font-semibold text-[#c93b57]">
+                                Size: <span className="capitalize">{item.size}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-center">
+                            <p className="text-[28px] font-extrabold text-[#c93b57]">
+                              ${item.price.toFixed(2)}
+                            </p>
+                          </div>
+
+                          <div className="flex justify-center">
+                            <QuantityControl
+                              quantity={item.quantity}
+                              onDecrease={() => changeQuantity(index, -1)}
+                              onIncrease={() => changeQuantity(index, 1)}
+                            />
+                          </div>
+
+                          <div className="text-center">
+                            <button
+                              type="button"
+                              onClick={() => deleteItem(index)}
+                              className="text-[20px] font-bold text-[#c93b57] transition hover:opacity-70"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="md:hidden">
+                          <div className="mb-4 flex items-start gap-3">
+                            <CartCheckbox
+                              checked={item.selected}
+                              onToggle={() => toggleSelected(index)}
+                            />
+
+                            <div className="overflow-hidden rounded-[8px] border-[4px] border-[#e7748f]">
+                              <Image
+                                src={item.image}
+                                alt={item.alt}
+                                width={92}
+                                height={92}
+                                className="h-[92px] w-[92px] object-cover"
+                              />
+                            </div>
+
+                            <div className="flex-1">
+                              <h2 className="text-[20px] font-bold leading-[1] text-[#c93b57]">
+                                {item.name}
+                              </h2>
+                              <p className="mt-2 text-[14px] font-semibold text-[#c93b57]">
+                                Color: <span className="capitalize">{item.color}</span>
+                              </p>
+                              <p className="text-[14px] font-semibold text-[#c93b57]">
+                                Size: <span className="capitalize">{item.size}</span>
+                              </p>
+                              <p className="mt-2 text-[24px] font-extrabold text-[#c93b57]">
+                                ${item.price.toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <QuantityControl
+                              quantity={item.quantity}
+                              onDecrease={() => changeQuantity(index, -1)}
+                              onIncrease={() => changeQuantity(index, 1)}
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() => deleteItem(index)}
+                              className="text-[18px] font-bold text-[#c93b57]"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="mt-8 flex items-center justify-end gap-4">
-              <p className="text-[18px] font-bold text-pink-50">
-                Total ({totalItems} Items):{" "}
-                <span className="text-white">${total.toFixed(2)}</span>
-              </p>
+                <div className="mt-8 flex flex-col items-end gap-4">
+                  <p className="text-[22px] font-extrabold text-[#c93b57]">
+                    Total ({totalItems} Items): <span>${total.toFixed(2)}</span>
+                  </p>
 
-              <button
-                type="button"
-                className="rounded-full px-8 py-2 text-[20px] font-bold"
-                style={{
-                  backgroundColor: "#f7d7df",
-                  color: "#d34d6d",
-                }}
-              >
-                check out
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    onClick={handleCheckout}
+                    className="rounded-full bg-[#c93b57] px-10 py-3 text-[28px] font-extrabold leading-none text-white transition hover:opacity-90 md:text-[32px]"
+                  >
+                    check out
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </div>
