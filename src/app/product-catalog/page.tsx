@@ -2,7 +2,7 @@
 // src/app/product-catalog/page.tsx
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation"; // ✅ added useRouter
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/app/Navbar";
@@ -75,7 +75,7 @@ function FilterSidebar({ minPrice, maxPrice, rating, onMinPrice, onMaxPrice, onR
 
 // ── Category helpers ──────────────────────────────────────────────────────────
 const CATEGORY_ICON: Record<string, string> = {
-    All: "assets/AllCategoryIcon.png",
+    All: "/assets/AllCategoryIcon.png",
     Keychains: "/assets/KeychainCategoryIcon.png",
     Amigurumi: "/assets/AmigurumiCategoryIcon.png",
     "Fan Made": "/assets/FanMadeCategoryIcon.png",
@@ -88,10 +88,7 @@ function CategoryCard({ name, active, onClick }: { name: string; active: boolean
                 style={{ clipPath: "polygon(50% 0%,56% 3%,63% 2%,68% 7%,75% 8%,79% 14%,86% 16%,89% 23%,95% 27%,97% 34%,100% 40%,100% 47%,98% 53%,100% 60%,98% 67%,95% 73%,89% 77%,87% 84%,81% 88%,75% 92%,68% 93%,62% 98%,56% 97%,50% 100%,44% 97%,38% 98%,32% 93%,25% 92%,19% 88%,13% 84%,11% 77%,5% 73%,2% 67%,0% 60%,2% 53%,0% 47%,0% 40%,3% 34%,5% 27%,11% 23%,14% 16%,21% 14%,25% 8%,32% 7%,37% 2%,44% 3%)" }}>
                 <Image
                     src={CATEGORY_ICON[name] ?? "/assets/AllCategoryIcon.png"}
-                    alt={name}
-                    width={40}
-                    height={40}
-                    className="object-contain"
+                    alt={name} width={40} height={40} className="object-contain"
                 />
             </div>
             <span className={`text-xs font-semibold ${active ? "text-[#C0395A]" : "text-[#4B2E39]"}`}>{name}</span>
@@ -140,19 +137,19 @@ function ProductSkeleton() {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ProductCatalogPage() {
 
-    // ✅ KEY CHANGE: useSearchParams reads ?q= from the URL
-    // When Navbar on another page does router.push("/product-catalog?q=bunny"),
-    // this page wakes up and sees q="bunny" immediately.
     const searchParams = useSearchParams();
+    const router = useRouter();
+
+    // ✅ FIX: Read search DIRECTLY from the URL — no useState, no useEffect
+    // searchParams is already reactive — it updates automatically when the URL changes.
+    // This eliminates the "Avoid calling setState() directly within an effect" warning
+    // and fixes the Vercel deployment error.
+    const search = searchParams.get("q") ?? "";
 
     const [allProducts, setAllProducts] = useState<ProductWithRating[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // ✅ Initialize search from URL on first render
-    // If user came from another page with ?q=bunny, the input is pre-filled
-    const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
 
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
@@ -162,13 +159,6 @@ export default function ProductCatalogPage() {
     const [appliedRating, setAppliedRating] = useState(0);
     const [sortBy, setSortBy] = useState<"Relevance" | "Latest" | "Top Sales">("Relevance");
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
-
-    // ✅ If user navigates back/forward or the URL param changes while already
-    // on this page, keep the search input in sync with the URL
-    useEffect(() => {
-        const q = searchParams.get("q") ?? "";
-        setSearch(q);
-    }, [searchParams]);
 
     // Fetch products + categories once on mount
     useEffect(() => {
@@ -187,7 +177,8 @@ export default function ProductCatalogPage() {
         load();
     }, []);
 
-    // Filter + sort in memory
+    // Filter + sort in memory — `search` comes from the URL so this
+    // automatically re-runs whenever the URL's ?q= param changes
     const filteredProducts = useMemo(() => {
         let result = [...allProducts];
         if (search.trim())
@@ -214,14 +205,20 @@ export default function ProductCatalogPage() {
         setActiveCategory(null);
     };
 
+    // ✅ When the user types in the search bar ON this page,
+    // update the URL instead of a local state variable.
+    // This keeps the URL and the search input perfectly in sync.
+    const handleSearchChange = (value: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (value) params.set("q", value);
+        else params.delete("q");
+        router.replace(`/product-catalog?${params.toString()}`);
+    };
+
     return (
         <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
 
-            {/* ✅ searchValue and onSearchChange are passed here so that:
-                - typing in the search bar on THIS page updates `search` state directly
-                - the filter runs instantly via useMemo
-                Navbar also handles the redirect from other pages via router.push */}
-            <Navbar searchValue={search} onSearchChange={setSearch} />
+            <Navbar searchValue={search} onSearchChange={handleSearchChange} />
 
             <div className="mt-4 px-4 pb-0 md:px-8">
                 <div className="flex flex-col overflow-hidden rounded-3xl bg-[#FFF0F6] shadow-lg">
@@ -240,13 +237,7 @@ export default function ProductCatalogPage() {
                                     className="shrink-0 flex flex-col items-center gap-1 transition-transform hover:scale-105">
                                     <div className={`h-20 w-20 rounded-2xl border-4 flex items-center justify-center ${activeCategory === null ? "border-[#C0395A]" : "border-pink-200"}`}
                                         style={{ clipPath: "polygon(50% 0%,56% 3%,63% 2%,68% 7%,75% 8%,79% 14%,86% 16%,89% 23%,95% 27%,97% 34%,100% 40%,100% 47%,98% 53%,100% 60%,98% 67%,95% 73%,89% 77%,87% 84%,81% 88%,75% 92%,68% 93%,62% 98%,56% 97%,50% 100%,44% 97%,38% 98%,32% 93%,25% 92%,19% 88%,13% 84%,11% 77%,5% 73%,2% 67%,0% 60%,2% 53%,0% 47%,0% 40%,3% 34%,5% 27%,11% 23%,14% 16%,21% 14%,25% 8%,32% 7%,37% 2%,44% 3%)" }}>
-                                        <Image
-                                            src="/assets/AllCategoryIcon.png"
-                                            alt="All"
-                                            width={40}
-                                            height={40}
-                                            className="object-contain"
-                                        />
+                                        <Image src="/assets/AllCategoryIcon.png" alt="All" width={40} height={40} className="object-contain" />
                                     </div>
                                     <span className={`text-xs font-semibold ${activeCategory === null ? "text-[#C0395A]" : "text-[#4B2E39]"}`}>All</span>
                                 </button>
@@ -270,7 +261,7 @@ export default function ProductCatalogPage() {
                                 <div className="flex flex-wrap gap-2">
                                     {activeCategory && (
                                         <span className="flex items-center gap-1 rounded-full bg-pink-100 px-3 py-1 text-xs font-semibold text-[#C0395A]">
-                                            {CATEGORY_ICON[activeCategory] ?? "🧶"} {activeCategory}
+                                            {activeCategory}
                                             <button onClick={() => setActiveCategory(null)}>✕</button>
                                         </span>
                                     )}

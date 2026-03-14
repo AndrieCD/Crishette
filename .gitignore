@@ -39,3 +39,57 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.user
+
+# Visual Studio database/cache
+*.vsidx
+*.dbmdl
+*.opendb
+*.VC.db
+
+# SQLite
+*.db
+*.db-wal
+*.db-shm
+
+# Workspace temp
+*.tmp
+*.cache
+*.log
+
+# GitHub Copilot / AI temp files
+.copilot/
+.github/copilot/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.user
+
+# Visual Studio database/cache
+*.vsidx
+*.dbmdl
+*.opendb
+*.VC.db
+
+# Workspace temp
+*.tmp
+*.cache
+*.log
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
