@@ -1,19 +1,10 @@
 "use client";
-// src/app/product-catalog/page.tsx
-// Product Catalog page — matches the Figma screenshot with:
-//   - Left sidebar: Search Filter, Price Range, Star Rating, Clear All + Apply
-//   - Categories horizontal scroll row
-//   - Sort by bar (Relevance, Latest, Top Sales)
-//   - 4-column product grid with scallop-bordered cards
-//   - Scallop bottom on main content
-//   - About Crishette footer
-// 'use client' needed for useState (filters, sort, search)
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { PRODUCTS } from "@/lib/products";
 
-// ── Static placeholder data (swap with Supabase fetch later) ──────────────────
 const CATEGORIES = [
   { id: 1, name: "category 1", image: "/images/product1.png" },
   { id: 2, name: "category 1", image: "/images/product1.png" },
@@ -23,21 +14,9 @@ const CATEGORIES = [
   { id: 6, name: "category 1", image: "/images/product1.png" },
 ];
 
-const PRODUCTS = [
-  { id: 1, name: "product 1", price: 4.44, image: "/images/product1.png" },
-  { id: 2, name: "product 1", price: 4.44, image: "/images/product2.png" },
-  { id: 3, name: "product 1", price: 4.44, image: "/images/product1.png" },
-  { id: 4, name: "product 1", price: 4.44, image: "/images/product2.png" },
-  { id: 5, name: "product 1", price: 4.44, image: "/images/product3.png" },
-  { id: 6, name: "product 1", price: 4.44, image: "/images/product1.png" },
-  { id: 7, name: "product 1", price: 4.44, image: "/images/product2.png" },
-  { id: 8, name: "product 1", price: 4.44, image: "/images/product3.png" },
-];
-
-// ── Scallop bottom border (white version — for main content card) ─────────────
 function ScallopBottomLight() {
   return (
-    <div className="w-full overflow-hidden leading-none mt-auto">
+    <div className="mt-auto w-full overflow-hidden leading-none">
       <svg
         viewBox="0 0 400 28"
         xmlns="http://www.w3.org/2000/svg"
@@ -64,31 +43,6 @@ function ScallopBottomLight() {
   );
 }
 
-// ── Wavy yarn background ──────────────────────────────────────────────────────
-function YarnBackground() {
-  return (
-    <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
-      {[...Array(8)].map((_, i) => (
-        <svg
-          key={i}
-          className="absolute"
-          style={{ top: `${i * 13}%`, left: "-10%", width: "120%" }}
-          viewBox="0 0 500 40"
-          preserveAspectRatio="none"
-        >
-          <path
-            d={`M0,20 C30,${5 + i * 2} 60,${35 - i * 2} 100,20 C140,${5 + i} 170,${35 - i} 200,20 C240,${5 + i * 2} 270,${35 - i * 2} 300,20 C340,${5 + i} 370,${35 - i} 400,20 C430,${5 + i * 2} 460,${35 - i * 2} 500,20`}
-            stroke="#A02845"
-            strokeWidth="2.5"
-            fill="none"
-          />
-        </svg>
-      ))}
-    </div>
-  );
-}
-
-// ── Star Rating component ─────────────────────────────────────────────────────
 function StarRating({
   value,
   onChange,
@@ -114,7 +68,6 @@ function StarRating({
   );
 }
 
-// ── Filter Sidebar ────────────────────────────────────────────────────────────
 function FilterSidebar({
   minPrice,
   maxPrice,
@@ -135,66 +88,56 @@ function FilterSidebar({
   onClear: () => void;
 }) {
   return (
-    <aside className="w-44 shrink-0 bg-white rounded-2xl shadow-md p-4 flex flex-col gap-4 h-fit">
-      {/* Heading */}
-      <div className="flex items-center gap-2">
-        {/* Filter funnel icon */}
+    <aside className="h-fit w-44 shrink-0 rounded-2xl bg-white p-4 shadow-md">
+      <div className="mb-4 flex items-center gap-2">
         <svg
-          className="w-4 h-4 text-[#C0395A]"
+          className="h-4 w-4 text-[#C0395A]"
           viewBox="0 0 24 24"
           fill="currentColor"
         >
           <path d="M4 6h16v2l-6 6v6l-4-2v-4L4 8V6z" />
         </svg>
-        <span className="font-['Fredoka'] font-bold text-[#C0395A] text-sm">
-          Search Filter
-        </span>
+        <span className="text-sm font-bold text-[#C0395A]">Search Filter</span>
       </div>
 
-      {/* Price Range */}
-      <div className="flex flex-col gap-2">
-        <p className="font-['Fredoka'] font-semibold text-[#4B2E39] text-xs">
-          Price Range
-        </p>
+      <div className="mb-4">
+        <p className="mb-2 text-xs font-semibold text-[#4B2E39]">Price Range</p>
         <div className="flex items-center gap-1">
           <input
             type="number"
             placeholder="$ MIN"
             value={minPrice}
             onChange={(e) => onMinPrice(e.target.value)}
-            className="w-full rounded-lg border-2 border-pink-200 px-2 py-1 text-xs font-['Fredoka'] text-[#4B2E39] outline-none focus:ring-1 focus:ring-pink-300"
+            className="w-full rounded-lg border-2 border-pink-200 px-2 py-1 text-xs text-[#4B2E39] outline-none"
           />
-          <span className="text-pink-300 text-xs">—</span>
+          <span className="text-xs text-pink-300">—</span>
           <input
             type="number"
             placeholder="$ MAX"
             value={maxPrice}
             onChange={(e) => onMaxPrice(e.target.value)}
-            className="w-full rounded-lg border-2 border-pink-200 px-2 py-1 text-xs font-['Fredoka'] text-[#4B2E39] outline-none focus:ring-1 focus:ring-pink-300"
+            className="w-full rounded-lg border-2 border-pink-200 px-2 py-1 text-xs text-[#4B2E39] outline-none"
           />
         </div>
       </div>
 
-      {/* Rating */}
-      <div className="flex flex-col gap-2">
-        <p className="font-['Fredoka'] font-semibold text-[#4B2E39] text-xs">
-          Rating
-        </p>
+      <div className="mb-4">
+        <p className="mb-2 text-xs font-semibold text-[#4B2E39]">Rating</p>
         <StarRating value={rating} onChange={onRating} />
       </div>
 
-      {/* Buttons */}
       <button
         type="button"
         onClick={onApply}
-        className="w-full bg-[#C0395A] text-white font-['Fredoka'] font-bold rounded-full py-1.5 text-xs hover:bg-[#a02845] transition-colors"
+        className="mb-3 w-full rounded-full bg-[#C0395A] py-1.5 text-xs font-bold text-white"
       >
         Apply
       </button>
+
       <button
         type="button"
         onClick={onClear}
-        className="w-full bg-white border-2 border-[#C0395A] text-[#C0395A] font-['Fredoka'] font-bold rounded-full py-1.5 text-xs hover:bg-pink-50 transition-colors"
+        className="w-full rounded-full border-2 border-[#C0395A] bg-white py-1.5 text-xs font-bold text-[#C0395A]"
       >
         Clear All
       </button>
@@ -202,7 +145,6 @@ function FilterSidebar({
   );
 }
 
-// ── Category pill ─────────────────────────────────────────────────────────────
 function CategoryCard({
   name,
   image,
@@ -218,11 +160,10 @@ function CategoryCard({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center gap-1 shrink-0 group transition-transform hover:scale-105`}
+      className="shrink-0 transition-transform hover:scale-105"
     >
-      {/* Scallop-edged image */}
       <div
-        className={`relative w-20 h-20 rounded-2xl overflow-hidden border-4 transition-colors ${
+        className={`relative h-20 w-20 overflow-hidden rounded-2xl border-4 ${
           active ? "border-[#C0395A]" : "border-pink-200"
         }`}
         style={{
@@ -230,16 +171,10 @@ function CategoryCard({
             "polygon(50% 0%,56% 3%,63% 2%,68% 7%,75% 8%,79% 14%,86% 16%,89% 23%,95% 27%,97% 34%,100% 40%,100% 47%,98% 53%,100% 60%,98% 67%,95% 73%,89% 77%,87% 84%,81% 88%,75% 92%,68% 93%,62% 98%,56% 97%,50% 100%,44% 97%,38% 98%,32% 93%,25% 92%,19% 88%,13% 84%,11% 77%,5% 73%,2% 67%,0% 60%,2% 53%,0% 47%,0% 40%,3% 34%,5% 27%,11% 23%,14% 16%,21% 14%,25% 8%,32% 7%,37% 2%,44% 3%)",
         }}
       >
-        <Image
-          src={image}
-          alt={name}
-          fill
-          className="object-cover"
-          sizes="80px"
-        />
+        <Image src={image} alt={name} fill className="object-cover" sizes="80px" />
       </div>
       <span
-        className={`font-['Fredoka'] text-xs font-semibold ${
+        className={`mt-1 block text-xs font-semibold ${
           active ? "text-[#C0395A]" : "text-[#4B2E39]"
         }`}
       >
@@ -249,65 +184,79 @@ function CategoryCard({
   );
 }
 
-// ── Product Card ──────────────────────────────────────────────────────────────
 function ProductCard({
+  id,
   name,
   price,
   image,
 }: {
+  id: string;
   name: string;
   price: number;
   image: string;
 }) {
   return (
     <Link
-      href="#"
-      className="flex flex-col items-center gap-2 bg-white rounded-2xl shadow-md overflow-hidden group hover:shadow-pink-200 hover:scale-105 transition-all duration-200 border-2 border-pink-100"
+      href={`/product/${id}`}
+      className="group overflow-hidden rounded-2xl border-2 border-pink-100 bg-white shadow-md transition-all duration-200 hover:scale-[1.02] hover:shadow-pink-200"
     >
-      {/* Product image */}
-      <div className="relative w-full aspect-square overflow-hidden">
+      <div className="relative aspect-square w-full overflow-hidden">
         <Image
           src={image}
           alt={name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 50vw, 25vw"
         />
       </div>
 
-      {/* Info */}
-      <div className="text-center pb-3 px-2">
-        <p className="font-['Fredoka'] font-semibold text-[#4B2E39] text-sm">
-          {name}
-        </p>
-        <p className="font-['Fredoka'] font-bold text-[#C0395A] text-sm">
-          $ {price.toFixed(2)}
-        </p>
+      <div className="px-2 pb-3 pt-2 text-center">
+        <p className="text-sm font-semibold text-[#4B2E39]">{name}</p>
+        <p className="text-sm font-bold text-[#C0395A]">$ {price.toFixed(2)}</p>
       </div>
     </Link>
   );
 }
 
-// ── Main Catalog Page ─────────────────────────────────────────────────────────
 export default function ProductCatalogPage() {
-  // Filter state
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [rating, setRating] = useState(0);
-
-  // Sort state
   const [sortBy, setSortBy] = useState<"Relevance" | "Latest" | "Top Sales">(
-    "Relevance",
+    "Relevance"
   );
-
-  // Active category
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
-
-  // Search
   const [search, setSearch] = useState("");
 
+  const filteredProducts = useMemo(() => {
+    let result = [...PRODUCTS];
+
+    if (search.trim()) {
+      result = result.filter((product) =>
+        product.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (minPrice) {
+      result = result.filter((product) => product.price >= Number(minPrice));
+    }
+
+    if (maxPrice) {
+      result = result.filter((product) => product.price <= Number(maxPrice));
+    }
+
+    if (sortBy === "Latest") {
+      result = [...result].reverse();
+    }
+
+    if (sortBy === "Top Sales") {
+      result = [...result].sort((a, b) => b.price - a.price);
+    }
+
+    return result;
+  }, [search, minPrice, maxPrice, sortBy]);
+
   const handleApply = () => {
-    // TODO: wire up Supabase filtered query here
     console.log("Filter applied:", { minPrice, maxPrice, rating });
   };
 
@@ -318,68 +267,32 @@ export default function ProductCatalogPage() {
   };
 
   return (
-    <div
-      className="min-h-screen font-['Fredoka']"
-      style={{ backgroundColor: "#C0395A" }}
-    >
-      {/* ── HERO BANNER ───────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden py-4">
-        <div className="absolute inset-0 flex items-center overflow-hidden opacity-30 pointer-events-none select-none">
-          <div className="flex whitespace-nowrap animate-[marquee_20s_linear_infinite]">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <span
-                key={i}
-                className="text-4xl font-bold text-[#A02845] tracking-widest mx-4 uppercase"
-              >
-                YOUR WISH IS MY CROCHET &nbsp;&nbsp;
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="relative flex flex-col items-center z-10 py-2">
-          <Image
-            src="/assets/CrishetteLogo.png"
-            alt="Crishette Logo"
-            width={90}
-            height={90}
-            className="drop-shadow-lg"
-          />
-          <span className="text-white font-bold tracking-wide mt-1 text-3xl font-['Fredoka']">
-            Crishette
-          </span>
-        </div>
-      </div>
-
-      {/* ── NAVBAR CARD ───────────────────────────────────────────────── */}
-      <div className="px-4 md:px-8">
-        <div className="bg-[#FFF0F6] rounded-3xl shadow-lg overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3 gap-3">
-            {/* Brand */}
-            <div className="flex items-center gap-2 shrink-0">
+    <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
+      <div className="px-4 pb-0 pt-4 md:px-8">
+        <div className="overflow-hidden rounded-3xl bg-[#FFF0F6] shadow-lg">
+          <div className="flex items-center justify-between gap-3 px-5 py-3">
+            <div className="flex shrink-0 items-center gap-2">
               <Image
                 src="/assets/CrishetteLogo.png"
                 alt="Crishette"
                 width={36}
                 height={36}
               />
-              <span className="font-bold text-[#C0395A] text-lg font-['Fredoka']">
-                crishette
-              </span>
+              <span className="text-lg font-bold text-[#C0395A]">crishette</span>
             </div>
 
-            {/* Search */}
-            <div className="flex-1 max-w-lg relative">
+            <div className="relative max-w-lg flex-1">
               <input
                 type="text"
                 placeholder="Hinted search text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-full border border-pink-200 bg-white px-4 py-2 text-sm text-gray-500 shadow-inner outline-none focus:ring-2 focus:ring-pink-300 font-['Fredoka']"
+                className="w-full rounded-full border border-pink-200 bg-white px-4 py-2 text-sm text-gray-500 outline-none"
               />
               <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C0395A]">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -394,15 +307,14 @@ export default function ProductCatalogPage() {
               </button>
             </div>
 
-            {/* Nav icons */}
-            <div className="flex items-center gap-4 shrink-0">
+            <div className="flex shrink-0 items-center gap-4">
               <Link
                 href="/product-catalog"
-                className="flex flex-col items-center text-[#C0395A] hover:text-pink-400 transition-colors"
+                className="flex flex-col items-center text-[#C0395A]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6"
+                  className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -414,15 +326,16 @@ export default function ProductCatalogPage() {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
-                <span className="text-xs font-['Fredoka']">shop</span>
+                <span className="text-xs">shop</span>
               </Link>
+
               <Link
                 href="/shopping-cart"
-                className="flex flex-col items-center text-[#C0395A] hover:text-pink-400 transition-colors"
+                className="flex flex-col items-center text-[#C0395A]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6"
+                  className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -434,13 +347,14 @@ export default function ProductCatalogPage() {
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 5h12.8M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
                   />
                 </svg>
-                <span className="text-xs font-['Fredoka']">cart</span>
+                <span className="text-xs">cart</span>
               </Link>
+
               <Link
                 href="/profile"
-                className="flex flex-col items-center text-[#C0395A] hover:text-pink-400 transition-colors"
+                className="flex flex-col items-center text-[#C0395A]"
               >
-                <div className="w-7 h-7 rounded-full overflow-hidden border-2 border-[#C0395A]">
+                <div className="h-7 w-7 overflow-hidden rounded-full border-2 border-[#C0395A]">
                   <Image
                     src="/images/profile-placeholder.jpg"
                     alt="Profile"
@@ -449,13 +363,12 @@ export default function ProductCatalogPage() {
                     className="object-cover"
                   />
                 </div>
-                <span className="text-xs font-['Fredoka']">profile</span>
+                <span className="text-xs">profile</span>
               </Link>
             </div>
           </div>
 
-          {/* Scallop bottom of navbar */}
-          <div className="w-full overflow-hidden leading-none -mb-1">
+          <div className="-mb-1 w-full overflow-hidden leading-none">
             <svg
               viewBox="0 0 400 24"
               xmlns="http://www.w3.org/2000/svg"
@@ -471,11 +384,9 @@ export default function ProductCatalogPage() {
         </div>
       </div>
 
-      {/* ── MAIN CONTENT AREA ─────────────────────────────────────────── */}
-      <div className="px-4 md:px-8 mt-4 pb-0">
-        <div className="bg-[#FFF0F6] rounded-3xl shadow-lg flex flex-col overflow-hidden">
+      <div className="mt-4 px-4 pb-0 md:px-8">
+        <div className="flex flex-col overflow-hidden rounded-3xl bg-[#FFF0F6] shadow-lg">
           <div className="flex gap-5 p-5">
-            {/* Left: Filter Sidebar */}
             <FilterSidebar
               minPrice={minPrice}
               maxPrice={maxPrice}
@@ -487,15 +398,12 @@ export default function ProductCatalogPage() {
               onClear={handleClear}
             />
 
-            {/* Right: Main catalog area */}
-            <div className="flex flex-col gap-4 flex-1 min-w-0">
-              {/* CATEGORIES heading */}
-              <h2 className="font-['Fredoka'] font-bold text-[#C0395A] text-xl tracking-wide uppercase">
+            <div className="flex min-w-0 flex-1 flex-col gap-4">
+              <h2 className="text-xl font-bold uppercase tracking-wide text-[#C0395A]">
                 Categories
               </h2>
 
-              {/* Categories horizontal scroll */}
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-2">
                 {CATEGORIES.map((cat) => (
                   <CategoryCard
                     key={cat.id}
@@ -503,57 +411,55 @@ export default function ProductCatalogPage() {
                     image={cat.image}
                     active={activeCategory === cat.id}
                     onClick={() =>
-                      setActiveCategory(
-                        activeCategory === cat.id ? null : cat.id,
-                      )
+                      setActiveCategory(activeCategory === cat.id ? null : cat.id)
                     }
                   />
                 ))}
               </div>
 
-              {/* Sort by bar */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-['Fredoka'] text-sm text-[#4B2E39] font-semibold">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-semibold text-[#4B2E39]">
                   Sort by
                 </span>
-                {(["Relevance", "Latest", "Top Sales"] as const).map(
-                  (option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setSortBy(option)}
-                      className={`rounded-full px-4 py-1 text-sm font-['Fredoka'] font-semibold border-2 transition-colors ${
-                        sortBy === option
-                          ? "bg-[#C0395A] text-white border-[#C0395A]"
-                          : "bg-white text-[#4B2E39] border-pink-200 hover:border-[#C0395A] hover:text-[#C0395A]"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ),
-                )}
+                {(["Relevance", "Latest", "Top Sales"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setSortBy(option)}
+                    className={`rounded-full border-2 px-4 py-1 text-sm font-semibold transition-colors ${
+                      sortBy === option
+                        ? "border-[#C0395A] bg-[#C0395A] text-white"
+                        : "border-pink-200 bg-white text-[#4B2E39]"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
               </div>
 
-              {/* Product grid — 4 columns */}
               <div className="grid grid-cols-4 gap-3">
-                {PRODUCTS.map((product) => (
-                  <ProductCard key={product.id} {...product} />
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    image={product.image}
+                  />
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Scallop bottom of main content card */}
           <ScallopBottomLight />
         </div>
       </div>
 
-      {/* ── ABOUT CRISHETTE FOOTER ────────────────────────────────────── */}
-      <section className="bg-[#FFF0F6] mx-0 mt-0 px-8 py-8 rounded-t-none">
-        <h3 className="font-bold text-[#C0395A] text-xl mb-2 font-['Fredoka']">
+      <section className="mx-0 mt-0 rounded-t-none bg-[#FFF0F6] px-8 py-8">
+        <h3 className="mb-2 text-xl font-bold text-[#C0395A]">
           About Crishette
         </h3>
-        <p className="text-[#4B2E39] text-sm leading-relaxed max-w-3xl font-['Fredoka']">
+        <p className="max-w-3xl text-sm leading-relaxed text-[#4B2E39]">
           Handmade crochet creations made with love.
           Email: crishette@email.com
           Instagram: @crishette
