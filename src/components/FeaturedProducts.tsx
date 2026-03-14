@@ -17,7 +17,7 @@ function FeaturedCard({
   tagline,
   image,
 }: {
-  id: number;
+  id: string;
   name: string;
   tagline: string;
   image: string;
