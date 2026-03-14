@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "./Navbar"
+import Navbar from "@/app/Navbar"
 
 // ── Static placeholder data (swap with Supabase fetch later) ──────────────────
 const FEATURED_PRODUCTS = [
