@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PRODUCTS } from "@/lib/products";
+import Navbar from "@/app/Navbar"
+
 
 const CATEGORIES = [
   { id: 1, name: "category 1", image: "/images/product1.png" },
@@ -14,34 +16,16 @@ const CATEGORIES = [
   { id: 6, name: "category 1", image: "/images/product1.png" },
 ];
 
-function ScallopBottomLight() {
-  return (
-    <div className="mt-auto w-full overflow-hidden leading-none">
-      <svg
-        viewBox="0 0 400 28"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0,0 
-             C10,0 10,24 20,24 C30,24 30,0 40,0 
-             C50,0 50,24 60,24 C70,24 70,0 80,0 
-             C90,0 90,24 100,24 C110,24 110,0 120,0 
-             C130,0 130,24 140,24 C150,24 150,0 160,0 
-             C170,0 170,24 180,24 C190,24 190,0 200,0 
-             C210,0 210,24 220,24 C230,24 230,0 240,0 
-             C250,0 250,24 260,24 C270,24 270,0 280,0 
-             C290,0 290,24 300,24 C310,24 310,0 320,0 
-             C330,0 330,24 340,24 C350,24 350,0 360,0 
-             C370,0 370,24 380,24 C390,24 390,0 400,0 
-             L400,28 L0,28 Z"
-          fill="#FFF0F6"
-        />
-      </svg>
-    </div>
-  );
-}
+const PRODUCTS = [
+  { id: 1, name: "product 1", price: 4.44, image: "/images/product1.png" },
+  { id: 2, name: "product 1", price: 4.44, image: "/images/product2.png" },
+  { id: 3, name: "product 1", price: 4.44, image: "/images/product1.png" },
+  { id: 4, name: "product 1", price: 4.44, image: "/images/product2.png" },
+  { id: 5, name: "product 1", price: 4.44, image: "/images/product3.png" },
+  { id: 6, name: "product 1", price: 4.44, image: "/images/product1.png" },
+  { id: 7, name: "product 1", price: 4.44, image: "/images/product2.png" },
+  { id: 8, name: "product 1", price: 4.44, image: "/images/product3.png" },
+];
 
 function StarRating({
   value,
