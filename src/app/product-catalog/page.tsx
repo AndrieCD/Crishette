@@ -1,11 +1,11 @@
 "use client";
 // src/app/product-catalog/page.tsx
 
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation"; // ✅ added useRouter
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/app/Navbar";
+import Navbar from "@/components/Navbar";
 import {
     getAllProductsWithRatings,
     getCategories,
@@ -86,10 +86,8 @@ function CategoryCard({ name, active, onClick }: { name: string; active: boolean
         <button type="button" onClick={onClick} className="shrink-0 flex flex-col items-center gap-1 transition-transform hover:scale-105">
             <div className={`h-20 w-20 rounded-2xl border-4 bg-pink-100 flex items-center justify-center ${active ? "border-[#C0395A]" : "border-pink-200"}`}
                 style={{ clipPath: "polygon(50% 0%,56% 3%,63% 2%,68% 7%,75% 8%,79% 14%,86% 16%,89% 23%,95% 27%,97% 34%,100% 40%,100% 47%,98% 53%,100% 60%,98% 67%,95% 73%,89% 77%,87% 84%,81% 88%,75% 92%,68% 93%,62% 98%,56% 97%,50% 100%,44% 97%,38% 98%,32% 93%,25% 92%,19% 88%,13% 84%,11% 77%,5% 73%,2% 67%,0% 60%,2% 53%,0% 47%,0% 40%,3% 34%,5% 27%,11% 23%,14% 16%,21% 14%,25% 8%,32% 7%,37% 2%,44% 3%)" }}>
-                <Image
-                    src={CATEGORY_ICON[name] ?? "/assets/AllCategoryIcon.png"}
-                    alt={name} width={40} height={40} className="object-contain"
-                />
+                <Image src={CATEGORY_ICON[name] ?? "/assets/AllCategoryIcon.png"}
+                    alt={name} width={40} height={40} className="object-contain" />
             </div>
             <span className={`text-xs font-semibold ${active ? "text-[#C0395A]" : "text-[#4B2E39]"}`}>{name}</span>
         </button>
@@ -134,16 +132,31 @@ function ProductSkeleton() {
     );
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
-export default function ProductCatalogPage() {
+// ── Page loading fallback (shown while Suspense resolves) ─────────────────────
+function CatalogSkeleton() {
+    return (
+        <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
+            <div className="mt-4 px-4 md:px-8">
+                <div className="flex flex-col overflow-hidden rounded-3xl bg-[#FFF0F6] shadow-lg p-5">
+                    <div className="h-6 w-32 bg-pink-200 rounded-full animate-pulse mb-4" />
+                    <div className="grid grid-cols-4 gap-3">
+                        {Array.from({ length: 8 }).map((_, i) => <ProductSkeleton key={i} />)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
 
+// ── ✅ The actual catalog content — isolated so Suspense can wrap JUST this ───
+// useSearchParams() MUST live inside a component that is wrapped by <Suspense>.
+// Vercel's build pre-renders pages statically and throws if useSearchParams()
+// is called outside a Suspense boundary — it can't know the URL at build time.
+function CatalogContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // ✅ FIX: Read search DIRECTLY from the URL — no useState, no useEffect
-    // searchParams is already reactive — it updates automatically when the URL changes.
-    // This eliminates the "Avoid calling setState() directly within an effect" warning
-    // and fixes the Vercel deployment error.
+    // Read search directly from URL — no useState needed
     const search = searchParams.get("q") ?? "";
 
     const [allProducts, setAllProducts] = useState<ProductWithRating[]>([]);
@@ -160,7 +173,6 @@ export default function ProductCatalogPage() {
     const [sortBy, setSortBy] = useState<"Relevance" | "Latest" | "Top Sales">("Relevance");
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-    // Fetch products + categories once on mount
     useEffect(() => {
         async function load() {
             setLoading(true);
@@ -177,8 +189,6 @@ export default function ProductCatalogPage() {
         load();
     }, []);
 
-    // Filter + sort in memory — `search` comes from the URL so this
-    // automatically re-runs whenever the URL's ?q= param changes
     const filteredProducts = useMemo(() => {
         let result = [...allProducts];
         if (search.trim())
@@ -205,9 +215,6 @@ export default function ProductCatalogPage() {
         setActiveCategory(null);
     };
 
-    // ✅ When the user types in the search bar ON this page,
-    // update the URL instead of a local state variable.
-    // This keeps the URL and the search input perfectly in sync.
     const handleSearchChange = (value: string) => {
         const params = new URLSearchParams(searchParams.toString());
         if (value) params.set("q", value);
@@ -217,7 +224,6 @@ export default function ProductCatalogPage() {
 
     return (
         <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
-
             <Navbar searchValue={search} onSearchChange={handleSearchChange} />
 
             <div className="mt-4 px-4 pb-0 md:px-8">
@@ -312,5 +318,17 @@ export default function ProductCatalogPage() {
                 </p>
             </section>
         </div>
+    );
+}
+
+// ── ✅ Default export wraps CatalogContent in Suspense ────────────────────────
+// This is the ONLY change needed to fix the Vercel build error.
+// Suspense tells Next.js: "this part of the page needs the URL at runtime,
+// show a fallback while it loads instead of trying to pre-render it."
+export default function ProductCatalogPage() {
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <CatalogContent />
+        </Suspense>
     );
 }

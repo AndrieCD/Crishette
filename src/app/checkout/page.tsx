@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/app/Navbar";
+import Navbar from "@/components/Navbar";
 import { getSession } from "@/lib/auth";
 import { placeOrder } from "@/lib/orders";
 import { clearCart } from "@/lib/cart";

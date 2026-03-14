@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Navbar from "@/app/Navbar";
+import Navbar from "@/components/Navbar";
 import { getProductById, submitReview, getUserReview, type ProductWithRating } from "@/lib/products";
 import { addToCart } from "@/lib/cart";
 import { toggleLike, isLiked } from "@/lib/likes";

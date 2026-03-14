@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/app/Navbar";
+import Navbar from "@/components/Navbar";
 import { getSession } from "@/lib/auth";
 
 // ── Shipping options (static — no DB table needed for these) ──

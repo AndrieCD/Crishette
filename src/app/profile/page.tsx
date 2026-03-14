@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { getSession, logout, updateProfile } from "@/lib/auth";
 import { getUserOrders } from "@/lib/orders";
 import { getUserLikes } from "@/lib/likes";
-import Navbar from "@/app/Navbar";
+import Navbar from "@/components/Navbar";
 import type { CrishetteUser, Order, Like } from "@/lib/types";
 
 // ── Yarn background ────────────────────────────────────────────

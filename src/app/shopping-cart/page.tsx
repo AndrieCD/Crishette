@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/app/Navbar";
+import Navbar from "@/components/Navbar";
 import { getCartItems, updateCartQuantity, removeFromCart } from "@/lib/cart";
 import { getSession } from "@/lib/auth";
 import type { CartItem, CrishetteUser } from "@/lib/types";
