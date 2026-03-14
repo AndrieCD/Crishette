@@ -8,22 +8,22 @@ import Link from "next/link";
 const FEATURED_PRODUCTS = [
   {
     id: 1,
-    name: "Lorem ipsum",
-    tagline: "hello goodbye hello",
+    name: "Pig Amigurumi",
+    tagline: "Perfect for attaching to bags, keys, or pouches.",
     image: "/images/product1.png",
     alt: "Crochet pig amigurumi",
   },
   {
     id: 2,
-    name: "Lorem ipsum",
-    tagline: "hello goodbye hello",
+    name: "Tulip Bouquet",
+    tagline: "A beautiful and lasting flower gift perfect for any occasion.",
     image: "/images/product2.png",
     alt: "Crochet tulip bouquet",
   },
   {
     id: 3,
-    name: "Lorem ipsum",
-    tagline: "hello goodbye hello",
+    name: "Bunny with Heart",
+    tagline: "Soft, charming, and perfect as a small gift",
     image: "/images/product3.png",
     alt: "Crochet bunny with heart",
   },
@@ -309,13 +309,13 @@ export default function Land() {
           About Crishette
         </h3>
         <p className="max-w-3xl font-['Fredoka'] text-sm leading-relaxed text-[#4B2E39]">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
+        Your Wish is My Crochet — Handmade crochet creations made with love. <br />
+        <br />
+        Email: crishette@email.com <br />
+        Instagram: @crishette<br /> <br />
+        Based in Caloocan, Philippines
+        <br />
+        © 2026 Crishette. All rights reserved.
         </p>
       </section>
     </main>
