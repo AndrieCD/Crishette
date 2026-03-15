@@ -1,5 +1,5 @@
-// src/app/checkout/page.tsx
 "use client";
+// src/app/checkout/page.tsx
 
 import Image from "next/image";
 import Link from "next/link";
@@ -9,10 +9,9 @@ import Navbar from "@/components/Navbar";
 import HeroBanner from "@/components/HeroBanner";
 import { getSession } from "@/lib/auth";
 import { placeOrder } from "@/lib/orders";
-import { clearCart } from "@/lib/cart";
 import type { CrishetteUser } from "@/lib/types";
 
-// ── Types matching what cart page stored in sessionStorage ─────
+// ── Types ──────────────────────────────────────────────────────────────────────
 type CheckoutItem = {
     cart_item_id: string;
     product_id: string;
@@ -33,8 +32,11 @@ type ShippingOption = {
 
 type PaymentMethod = "Cash On Delivery" | "GCash" | "Maya";
 
-// ── Sub-components ─────────────────────────────────────────────
+// ── Which methods are currently unavailable ────────────────────────────────────
+// To enable GCash or Maya later, just remove them from this set.
+const UNAVAILABLE_METHODS = new Set<PaymentMethod>(["GCash", "Maya"]);
 
+// ── Sub-components ─────────────────────────────────────────────────────────────
 function ChangeButton({ onClick }: { onClick: () => void }) {
     return (
         <button type="button" onClick={onClick}
@@ -63,10 +65,9 @@ function SectionModal({ title, children, onClose }: {
     );
 }
 
-// ── Address type ───────────────────────────────────────────────
 type Address = { fullName: string; phone: string; addressLine: string; };
 
-// ── Main Page ──────────────────────────────────────────────────
+// ── Main Page ──────────────────────────────────────────────────────────────────
 export default function CheckoutPage() {
     const router = useRouter();
 
@@ -77,70 +78,52 @@ export default function CheckoutPage() {
         note: "Guaranteed to get by 12 Feb", fee: 50,
     });
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Cash On Delivery");
-
-    // Address prefilled from user profile, editable via modal
-    const [address, setAddress] = useState<Address>({
-        fullName: "", phone: "", addressLine: "",
-    });
+    const [address, setAddress] = useState<Address>({ fullName: "", phone: "", addressLine: "" });
     const [draftAddress, setDraftAddress] = useState<Address>(address);
 
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-
-    const [placing, setPlacing] = useState(false);   // true while calling Supabase
+    const [placing, setPlacing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderError, setOrderError] = useState<string | null>(null);
 
-    // ── Load session + sessionStorage data on mount ────────────
+    // ── Is the current payment method unavailable? ─────────────────────────────
+    const isPaymentUnavailable = UNAVAILABLE_METHODS.has(paymentMethod);
+
     useEffect(() => {
         const session = getSession();
         if (!session) { router.push("/login"); return; }
         setUser(session);
 
-        // Pre-fill address from user profile
-        setAddress({
+        const filled = {
             fullName: session.username ?? "",
             phone: session.phone ?? "",
             addressLine: session.address ?? "",
-        });
-        setDraftAddress({
-            fullName: session.username ?? "",
-            phone: session.phone ?? "",
-            addressLine: session.address ?? "",
-        });
+        };
+        setAddress(filled);
+        setDraftAddress(filled);
 
-        // Read items from sessionStorage (set by cart page)
         const rawItems = sessionStorage.getItem("checkoutItems");
         if (!rawItems) { router.push("/shopping-cart"); return; }
-        try { setCheckoutItems(JSON.parse(rawItems)); } catch { router.push("/shopping-cart"); return; }
+        try { setCheckoutItems(JSON.parse(rawItems)); } catch { router.push("/shopping-cart"); }
 
-        // Read shipping choice from sessionStorage (set by shipping page)
         const rawShipping = sessionStorage.getItem("selectedShipping");
         if (rawShipping) {
             try { setShipping(JSON.parse(rawShipping)); } catch { /* use default */ }
         }
-    }, []);
+    }, [router]);
 
-    // ── Derived totals ─────────────────────────────────────────
     const itemSubtotal = useMemo(
         () => checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
         [checkoutItems]
     );
     const totalPayment = itemSubtotal + shipping.fee;
 
-    // ── Place order → Supabase ─────────────────────────────────
-    // This is the most important function: it calls placeOrder()
-    // from src/lib/orders.ts which:
-    //   1. Creates a row in the `orders` table
-    //   2. Creates rows in `order_items` (snapshot of what was bought)
-    //   3. Then we clear the purchased items from `cart_items`
     const handlePlaceOrder = async () => {
-        if (!user) return;
+        if (!user || isPaymentUnavailable) return;
         setPlacing(true);
         setOrderError(null);
 
-        // Build CartItem-compatible objects for placeOrder()
-        // placeOrder() expects items with a `product` property
         const cartItemsForOrder = checkoutItems.map((item) => ({
             id: item.cart_item_id,
             user_id: user.id,
@@ -154,7 +137,6 @@ export default function CheckoutPage() {
                 name: item.product_name,
                 image: item.product_image,
                 price: item.price,
-                // Required Product fields — only price/name/image matter for order snapshot
                 description: "", colors: [], sizes: [], stock: 0,
                 is_featured: false, is_published: true,
                 created_at: "", updated_at: "",
@@ -164,12 +146,8 @@ export default function CheckoutPage() {
         const deliveryAddress = `${address.fullName} | ${address.phone} | ${address.addressLine}`;
 
         const result = await placeOrder(
-            user.id,
-            cartItemsForOrder,
-            shipping.fee,
-            shipping.label,
-            paymentMethod,
-            deliveryAddress
+            user.id, cartItemsForOrder, shipping.fee,
+            shipping.label, paymentMethod, deliveryAddress
         );
 
         if (!result.success) {
@@ -178,21 +156,18 @@ export default function CheckoutPage() {
             return;
         }
 
-        // Clear only the checked-out items from the cart (not the whole cart)
         const cartItemIds = checkoutItems.map((item) => item.cart_item_id);
         for (const id of cartItemIds) {
             await import("@/lib/cart").then(({ removeFromCart }) => removeFromCart(id));
         }
 
-        // Clean up sessionStorage
         sessionStorage.removeItem("checkoutItems");
         sessionStorage.removeItem("selectedShipping");
-
         setPlacing(false);
         setOrderPlaced(true);
     };
 
-    // ── Empty state (no items) ─────────────────────────────────
+    // ── Empty state ────────────────────────────────────────────────────────────
     if (!placing && checkoutItems.length === 0 && !orderPlaced) {
         return (
             <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
@@ -200,8 +175,11 @@ export default function CheckoutPage() {
                 <Navbar />
                 <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
                     <h1 className="text-[34px] font-extrabold text-white">No items selected</h1>
-                    <p className="mt-3 text-[18px] font-semibold text-pink-200">Please go back to your cart and choose at least one item.</p>
-                    <Link href="/shopping-cart" className="mt-8 rounded-full bg-white px-8 py-3 text-[22px] font-extrabold text-[#c93b57]">
+                    <p className="mt-3 text-[18px] font-semibold text-pink-200">
+                        Please go back to your cart and choose at least one item.
+                    </p>
+                    <Link href="/shopping-cart"
+                        className="mt-8 rounded-full bg-white px-8 py-3 text-[22px] font-extrabold text-[#c93b57]">
                         back to cart
                     </Link>
                 </div>
@@ -209,7 +187,7 @@ export default function CheckoutPage() {
         );
     }
 
-    // ── Order placed success screen ────────────────────────────
+    // ── Order success screen ───────────────────────────────────────────────────
     if (orderPlaced) {
         return (
             <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
@@ -228,10 +206,12 @@ export default function CheckoutPage() {
                         <p className="mt-2 text-[22px] font-extrabold">Total paid: ₱{totalPayment.toFixed(2)}</p>
                     </div>
                     <div className="mt-6 flex gap-4">
-                        <Link href="/profile" className="rounded-full bg-white px-6 py-3 text-[20px] font-extrabold text-[#c93b57]">
+                        <Link href="/profile"
+                            className="rounded-full bg-white px-6 py-3 text-[20px] font-extrabold text-[#c93b57]">
                             My Purchases
                         </Link>
-                        <Link href="/product-catalog" className="rounded-full border-2 border-white px-6 py-3 text-[20px] font-extrabold text-white">
+                        <Link href="/product-catalog"
+                            className="rounded-full border-2 border-white px-6 py-3 text-[20px] font-extrabold text-white">
                             Keep Shopping
                         </Link>
                     </div>
@@ -240,7 +220,7 @@ export default function CheckoutPage() {
         );
     }
 
-    // ── Main checkout view ─────────────────────────────────────
+    // ── Main checkout view ─────────────────────────────────────────────────────
     return (
         <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
             <HeroBanner />
@@ -271,7 +251,9 @@ export default function CheckoutPage() {
                         <div className="border-t-[3px] border-[#e4b8c2] py-5">
                             <div className="mb-5 grid grid-cols-[2fr_1fr_1fr_1fr] gap-3">
                                 {["Product Ordered", "Unit Price", "Quantity", "Item Subtotal"].map((h) => (
-                                    <h2 key={h} className="text-center text-[16px] font-extrabold uppercase first:text-left md:text-[20px]">{h}</h2>
+                                    <h2 key={h} className="text-center text-[16px] font-extrabold uppercase first:text-left md:text-[20px]">
+                                        {h}
+                                    </h2>
                                 ))}
                             </div>
                             <div className="space-y-5">
@@ -281,13 +263,14 @@ export default function CheckoutPage() {
                                             <div className="overflow-hidden rounded-[6px] border-[4px] border-[#e7748f]">
                                                 <Image
                                                     src={`/images/${item.product_image || "product1"}.png`}
-                                                    alt={item.product_name}
-                                                    width={110} height={110}
+                                                    alt={item.product_name} width={110} height={110}
                                                     className="h-[110px] w-[110px] object-cover"
                                                 />
                                             </div>
                                             <div>
-                                                <p className="max-w-[180px] text-[18px] font-bold leading-tight md:text-[22px]">{item.product_name}</p>
+                                                <p className="max-w-[180px] text-[18px] font-bold leading-tight md:text-[22px]">
+                                                    {item.product_name}
+                                                </p>
                                                 {item.color && <p className="mt-1 text-[14px] font-semibold capitalize text-pink-400">{item.color}</p>}
                                                 {item.size && <p className="text-[14px] font-semibold capitalize text-pink-400">{item.size}</p>}
                                             </div>
@@ -304,7 +287,15 @@ export default function CheckoutPage() {
                         <div className="border-t-[3px] border-[#e4b8c2] py-5">
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_auto] md:items-center">
                                 <h2 className="text-[20px] font-extrabold uppercase">Payment Method</h2>
-                                <p className="text-[18px] font-bold md:text-[20px]">{paymentMethod}</p>
+                                {/* ✅ Show the method + "not available" badge if needed */}
+                                <div className="flex items-center gap-2">
+                                    <p className="text-[18px] font-bold md:text-[20px]">{paymentMethod}</p>
+                                    {isPaymentUnavailable && (
+                                        <span className="rounded-full bg-amber-100 px-3 py-0.5 text-xs font-bold text-amber-600 border border-amber-300">
+                                            Currently unavailable
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="md:justify-self-end">
                                     <ChangeButton onClick={() => setShowPaymentModal(true)} />
                                 </div>
@@ -351,12 +342,35 @@ export default function CheckoutPage() {
                             </div>
                         )}
 
-                        {/* ── Place order button ── */}
+                        {/* ── Place order button + unavailability notice ── */}
                         <div className="mt-7 flex flex-col items-end gap-4">
-                            <button type="button" onClick={handlePlaceOrder} disabled={placing}
-                                className="rounded-full bg-[#c93b57] px-8 py-3 text-[28px] font-extrabold leading-none text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 md:text-[32px]">
+
+                            {/* ✅ Warning shown when GCash or Maya is selected */}
+                            {isPaymentUnavailable && (
+                                <div className="w-full max-w-[440px] rounded-2xl border-2 border-amber-300 bg-amber-50 px-5 py-4 text-right">
+                                    <p className="text-[15px] font-bold text-amber-700">
+                                        ⚠️ {paymentMethod} is not yet available.
+                                    </p>
+                                    <p className="mt-1 text-[13px] text-amber-600">
+                                        Please switch to <strong>Cash On Delivery</strong> to continue.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* ✅ Button is visually dimmed + cursor blocked when unavailable */}
+                            <button
+                                type="button"
+                                onClick={handlePlaceOrder}
+                                disabled={placing || isPaymentUnavailable}
+                                title={isPaymentUnavailable ? `${paymentMethod} is not yet available` : undefined}
+                                className={`rounded-full px-8 py-3 text-[28px] font-extrabold leading-none text-white transition md:text-[32px] ${isPaymentUnavailable
+                                        ? "cursor-not-allowed bg-gray-300 text-gray-500"
+                                        : "bg-[#c93b57] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                                    }`}
+                            >
                                 {placing ? "Placing order..." : "place order"}
                             </button>
+
                             <p className="max-w-[360px] text-right text-[16px] italic leading-tight text-[#64865b] md:text-[18px]">
                                 Each product is carefully handmade. Please allow 5–7 business days (1 creation week) for production before shipping.
                             </p>
@@ -369,13 +383,13 @@ export default function CheckoutPage() {
             {showAddressModal && (
                 <SectionModal title="Change Delivery Address" onClose={() => setShowAddressModal(false)}>
                     <div className="space-y-4">
-                        {[
-                            { label: "Full Name", key: "fullName" as const, type: "text" },
-                            { label: "Phone", key: "phone" as const, type: "text" },
-                        ].map(({ label, key, type }) => (
+                        {([
+                            { label: "Full Name", key: "fullName" as const },
+                            { label: "Phone", key: "phone" as const },
+                        ]).map(({ label, key }) => (
                             <div key={key}>
                                 <label className="mb-1 block text-sm font-bold text-[#c93b57]">{label}</label>
-                                <input type={type} value={draftAddress[key]}
+                                <input type="text" value={draftAddress[key]}
                                     onChange={(e) => setDraftAddress((prev) => ({ ...prev, [key]: e.target.value }))}
                                     className="w-full rounded-full border-2 border-[#e4b8c2] px-4 py-2 outline-none focus:border-[#c93b57]"
                                 />
@@ -402,16 +416,32 @@ export default function CheckoutPage() {
             {showPaymentModal && (
                 <SectionModal title="Choose Payment Method" onClose={() => setShowPaymentModal(false)}>
                     <div className="space-y-3">
-                        {(["Cash On Delivery", "GCash", "Maya"] as PaymentMethod[]).map((method) => (
-                            <button key={method} type="button"
-                                onClick={() => { setPaymentMethod(method); setShowPaymentModal(false); }}
-                                className={`block w-full rounded-[18px] border-2 px-4 py-3 text-left text-lg font-bold transition-colors ${paymentMethod === method
-                                        ? "border-[#c93b57] bg-[#fbe8ee] text-[#c93b57]"
-                                        : "border-[#e4b8c2] bg-white text-[#c93b57] hover:border-[#c93b57]"
-                                    }`}>
-                                {method}
-                            </button>
-                        ))}
+                        {(["Cash On Delivery", "GCash", "Maya"] as PaymentMethod[]).map((method) => {
+                            const unavailable = UNAVAILABLE_METHODS.has(method);
+                            return (
+                                <button key={method} type="button"
+                                    onClick={() => { setPaymentMethod(method); setShowPaymentModal(false); }}
+                                    className={`block w-full rounded-[18px] border-2 px-4 py-3 text-left transition-colors ${paymentMethod === method
+                                            ? "border-[#c93b57] bg-[#fbe8ee] text-[#c93b57]"
+                                            : "border-[#e4b8c2] bg-white text-[#c93b57] hover:border-[#c93b57]"
+                                        }`}>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-lg font-bold">{method}</span>
+                                        {/* ✅ "Coming soon" badge shown inside the modal */}
+                                        {unavailable && (
+                                            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-600 border border-amber-300">
+                                                Coming soon
+                                            </span>
+                                        )}
+                                    </div>
+                                    {unavailable && (
+                                        <p className="mt-0.5 text-xs text-pink-400">
+                                            This payment method is not yet available for checkout.
+                                        </p>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </SectionModal>
             )}
