@@ -25,9 +25,9 @@ export default function HeroBanner() {
       {/* Logo centered on top of the marquee */}
       <div className="relative z-10 flex flex-col items-center py-2">
         <Image
-          src="/assets/CrishetteLogo.png"
+          src="/assets/CrishetteLogoCrop.png"
           alt="Crishette Logo"
-          width={150}
+          width={140}
           height={150}
           className="drop-shadow-lg"
           priority

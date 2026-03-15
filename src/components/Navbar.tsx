@@ -38,7 +38,7 @@ export default function Navbar({
     }, []);
 
     const profileHref = user ? "/profile" : "/login";
-    const avatarSrc = user?.avatar_url ?? "/images/profile-placeholder.jpg";
+    const avatarSrc = user?.avatar_url || "/assets/avatar.png";
 
     return (
         <div

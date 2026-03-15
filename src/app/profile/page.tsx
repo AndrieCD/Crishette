@@ -106,8 +106,11 @@ function MyProfileTab({ user, onSaved }: { user: CrishetteUser; onSaved: (update
         setEditing(null);
         if (result.success && result.user) {
             onSaved(result.user);
+
+            // update session so navbar sees the new avatar
+            localStorage.setItem("session", JSON.stringify(result.user));
+
             setSaveMsg("Profile saved! 🌸");
-            setTimeout(() => setSaveMsg(""), 3000);
         }
     };
 
