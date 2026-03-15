@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import HeroBanner from "@/components/HeroBanner";
 import { getCartItems, updateCartQuantity, removeFromCart } from "@/lib/cart";
 import { getSession } from "@/lib/auth";
 import type { CartItem, CrishetteUser } from "@/lib/types";
@@ -155,6 +156,7 @@ export default function ShoppingCartPage() {
 
     return (
         <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
+            <HeroBanner />
             <Navbar />
 
             <div className="px-4 pb-8 pt-4 md:px-8">

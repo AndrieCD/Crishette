@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import HeroBanner from "@/components/HeroBanner";
 import { getSession } from "@/lib/auth";
 import { placeOrder } from "@/lib/orders";
 import { clearCart } from "@/lib/cart";
@@ -195,6 +196,7 @@ export default function CheckoutPage() {
     if (!placing && checkoutItems.length === 0 && !orderPlaced) {
         return (
             <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
+                <HeroBanner />
                 <Navbar />
                 <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
                     <h1 className="text-[34px] font-extrabold text-white">No items selected</h1>
@@ -211,6 +213,7 @@ export default function CheckoutPage() {
     if (orderPlaced) {
         return (
             <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
+                <HeroBanner />
                 <Navbar />
                 <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-10 text-center">
                     <p className="text-6xl">🎉</p>
@@ -240,6 +243,7 @@ export default function CheckoutPage() {
     // ── Main checkout view ─────────────────────────────────────
     return (
         <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
+            <HeroBanner />
             <Navbar />
 
             <div className="px-4 pb-8 pt-4 md:px-8">

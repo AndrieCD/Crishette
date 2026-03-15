@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import HeroBanner from "@/components/HeroBanner";
 import { getSession } from "@/lib/auth";
 
 // ── Shipping options (static — no DB table needed for these) ──
@@ -58,6 +59,7 @@ export default function ShippingMethodPage() {
 
     return (
         <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
+            <HeroBanner />
             <Navbar />
 
             <div className="px-4 pb-8 pt-4 md:px-8">

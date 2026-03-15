@@ -10,6 +10,7 @@ import { getUserOrders } from "@/lib/orders";
 import { getUserLikes } from "@/lib/likes";
 import Navbar from "@/components/Navbar";
 import type { CrishetteUser, Order, Like } from "@/lib/types";
+import HeroBanner from "@/components/HeroBanner";
 
 // ── Yarn background ────────────────────────────────────────────
 function YarnBackground() {
@@ -349,19 +350,9 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
-            {/* ── Crimson header banner ── */}
-            <div className="relative w-full flex flex-col items-center justify-center py-4 overflow-hidden bg-[#C0395A]">
-                <YarnBackground />
-                <p className="absolute font-['Fredoka'] font-bold text-3xl tracking-widest uppercase select-none pointer-events-none"
-                    style={{ color: "rgba(255,255,255,0.18)", letterSpacing: "0.2em" }}>
-                    YOUR WISH IS MY CROCHET
-                </p>
-                <div className="relative z-10">
-                    <Image src="/assets/CrishetteLogo.png" alt="Crishette Logo" width={70} height={70} className="drop-shadow-xl" />
-                </div>
-            </div>
 
             {/* ── Shared Navbar ── */}
+            <HeroBanner />
             <Navbar />
 
             {/* ── Main content ── */}

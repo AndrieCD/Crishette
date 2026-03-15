@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
+import HeroBanner from "@/components/HeroBanner";
 import { getProductById, submitReview, getUserReview, type ProductWithRating } from "@/lib/products";
 import { addToCart } from "@/lib/cart";
 import { toggleLike, isLiked } from "@/lib/likes";
@@ -285,6 +286,7 @@ export default function ProductDetailsPage() {
     return (
         <main className="min-h-screen bg-[#c93b57] font-['Fredoka']">
             {/* Shared Navbar — no search props needed on this page */}
+            <HeroBanner />
             <Navbar />
 
             <div className="px-4 pb-8 pt-4 md:px-8">

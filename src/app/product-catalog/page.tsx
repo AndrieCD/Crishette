@@ -11,6 +11,9 @@ import {
     getCategories,
     type ProductWithRating,
 } from "@/lib/products";
+import HeroBanner from "@/components/HeroBanner";
+
+
 
 // ── Star display (read-only) ──────────────────────────────────────────────────
 function StarDisplay({ value }: { value: number }) {
@@ -224,7 +227,10 @@ function CatalogContent() {
 
     return (
         <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
+            <HeroBanner />
             <Navbar searchValue={search} onSearchChange={handleSearchChange} />
+
+
 
             <div className="mt-4 px-4 pb-0 md:px-8">
                 <div className="flex flex-col overflow-hidden rounded-3xl bg-[#FFF0F6] shadow-lg">
