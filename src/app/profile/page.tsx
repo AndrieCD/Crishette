@@ -1,4 +1,3 @@
-// src/app/profile/page.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -273,8 +272,6 @@ function MyPurchasesTab({ userId }: { userId: string }) {
                 <h2 className="font-['Fredoka'] font-bold text-xl text-[#C0395A]">My Purchases</h2>
                 {orders.map((order) => (
                     <div key={order.id} className="rounded-2xl border-2 border-pink-100 bg-white p-4 shadow-sm">
-
-                        {/* Order header */}
                         <div className="flex items-center justify-between mb-3">
                             <span className="font-['Fredoka'] text-xs text-gray-400">
                                 {new Date(order.created_at).toLocaleDateString("en-PH", {
@@ -283,7 +280,6 @@ function MyPurchasesTab({ userId }: { userId: string }) {
                             </span>
                             <div className="flex items-center gap-2">
                                 <StatusBadge status={order.status} />
-                                {/* Cancel button — only visible while Pending */}
                                 {order.status === "Pending" && (
                                     <button type="button"
                                         onClick={() => setCancellingOrderId(order.id)}
@@ -294,7 +290,6 @@ function MyPurchasesTab({ userId }: { userId: string }) {
                             </div>
                         </div>
 
-                        {/* Items */}
                         {order.order_items?.map((item) => (
                             <div key={item.id} className="border-t border-pink-50 py-3">
                                 <div className="flex items-center gap-3">

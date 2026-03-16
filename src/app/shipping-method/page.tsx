@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 type ShippingOption = {
   id: string;
   label: string;
@@ -36,6 +37,8 @@ const shippingOptions: ShippingOption[] = [
     eta: "(5–7 business days)",
   },
 =======
+=======
+>>>>>>> Stashed changes
 const SHIPPING_OPTIONS = [
     {
         id: "standard",
@@ -64,6 +67,7 @@ const SHIPPING_OPTIONS = [
 function ScallopHeader() {
   const scallops = Array.from({ length: 12 });
 
+<<<<<<< Updated upstream
   return (
     <div className="pointer-events-none absolute left-0 right-0 top-full flex h-[38px] overflow-hidden">
       {scallops.map((_, index) => (
@@ -116,13 +120,15 @@ export default function ShippingMethodPage() {
                 </span>
               </div>
 =======
+=======
+>>>>>>> Stashed changes
     useEffect(() => {
         if (!getSession()) { router.push("/login"); return; }
         if (!sessionStorage.getItem("checkoutItems")) { router.push("/shopping-cart"); return; }
 
         const saved = sessionStorage.getItem("selectedShipping");
         if (saved) {
-            try { setSelectedId(JSON.parse(saved).id); } catch { /* ignore */ }
+            try { setSelectedId(JSON.parse(saved).id); } catch { }
         }
     }, []);
 

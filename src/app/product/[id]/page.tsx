@@ -33,6 +33,7 @@ function ScallopHeader() {
   );
 }
 
+<<<<<<< Updated upstream
 function TopNavIcon({
   href,
   label,
@@ -85,6 +86,8 @@ function QuantityControl({
     </div>
   );
 =======
+=======
+>>>>>>> Stashed changes
 function StarDisplay({ value, count }: { value: number; count: number }) {
     return (
         <div className="flex items-center gap-2">
@@ -157,6 +160,7 @@ export default function ProductDetailsPage() {
         item.size === selectedSize
     );
 
+<<<<<<< Updated upstream
     if (existingIndex >= 0) {
       existingItems[existingIndex].quantity += quantity;
     } else {
@@ -172,6 +176,27 @@ export default function ProductDetailsPage() {
         size: selectedSize,
       });
     }
+=======
+                            <div className="flex flex-col gap-5">
+                                <div>
+                                    <h1 className="text-[44px] font-extrabold uppercase leading-none text-[#c93b57] drop-shadow-[3px_3px_0_#fff] md:text-[64px]">
+                                        {product.name}
+                                    </h1>
+                                    <div className="mt-3 flex items-center gap-3">
+                                        <span className="text-[32px] font-extrabold md:text-[44px]">₱{product.price.toFixed(2)}</span>
+                                        <span className="rounded-full bg-pink-100 px-3 py-1 text-sm font-bold text-[#c93b57]">{product.stock} in stock</span>
+                                    </div>
+                                    <div className="mt-2">
+                                        <StarDisplay value={product.avg_rating} count={product.review_count} />
+                                    </div>
+                                    <p className="mt-1 text-xs text-pink-400 font-['Fredoka']">
+                                        Bought this?{" "}
+                                        <Link href="/profile" className="underline font-bold text-[#c93b57]">
+                                            Leave a review from My Purchases 🌸
+                                        </Link>
+                                    </p>
+                                </div>
+>>>>>>> Stashed changes
 
     localStorage.setItem("cartItems", JSON.stringify(existingItems));
     router.push("/shopping-cart");

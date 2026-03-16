@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 type CartItem = {
   id: string;
   name: string;
@@ -35,6 +36,23 @@ type CartItemWithSelection = CartItem & { selected: boolean };
       ))}
     </div>
   );
+=======
+type CartItemWithSelection = CartItem & { selected: boolean };
+
+function CartCheckbox({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
+    return (
+        <button type="button" onClick={onToggle} aria-pressed={checked}
+            className={`flex h-10 w-10 items-center justify-center rounded-[10px] border-2 transition ${checked ? "border-[#c93b57] bg-[#fbe8ee]" : "border-[#e4b8c2] bg-white"
+                }`}
+        >
+            {checked && (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#c93b57]" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.2 7.261a1 1 0 0 1-1.42.005L3.29 9.17a1 1 0 1 1 1.414-1.414l4.09 4.09 6.493-6.55a1 1 0 0 1 1.417-.006Z" clipRule="evenodd" />
+                </svg>
+            )}
+        </button>
+    );
+>>>>>>> Stashed changes
 }
 
 function CartCheckbox({
@@ -322,6 +340,7 @@ export default function ShoppingCartPage() {
                     </svg>
                   </TopNavIcon>
 
+<<<<<<< Updated upstream
                   <TopNavIcon href="/shopping-cart" label="cart">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -352,6 +371,97 @@ export default function ShoppingCartPage() {
                   </TopNavIcon>
                 </div>
               </div>
+=======
+                                <div className="hidden grid-cols-[70px_2.5fr_1fr_1fr_120px] gap-4 md:grid">
+                                    <div />
+                                    <div className="text-left text-[20px] font-extrabold uppercase">Product</div>
+                                    <div className="text-center text-[20px] font-extrabold uppercase">Unit Price</div>
+                                    <div className="text-center text-[20px] font-extrabold uppercase">Quantity</div>
+                                    <div className="text-center text-[20px] font-extrabold uppercase">Actions</div>
+                                </div>
+
+                                <div className="space-y-4 md:space-y-5">
+                                    {cartItems.map((item) => {
+                                        const isUpdating = updatingIds.has(item.id);
+                                        const imageSrc = `/images/${item.product?.image ?? "product1"}.png`;
+
+                                        return (
+                                            <div key={`${item.id}-${item.color}-${item.size}`}
+                                                className={`rounded-[24px] border-2 border-[#ecd3d9] bg-white/70 p-4 transition-opacity md:rounded-none md:border-0 md:bg-transparent md:p-0 ${isUpdating ? "opacity-60" : "opacity-100"}`}
+                                            >
+                                                <div className="hidden items-center gap-4 md:grid md:grid-cols-[70px_2.5fr_1fr_1fr_120px]">
+                                                    <div className="flex justify-center">
+                                                        <CartCheckbox checked={item.selected} onToggle={() => toggleSelected(item.id)} />
+                                                    </div>
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="overflow-hidden rounded-[8px] border-[4px] border-[#e7748f]">
+                                                            <Image src={imageSrc} alt={item.product?.name ?? "Product"} width={110} height={110} className="h-[110px] w-[110px] object-cover" />
+                                                        </div>
+                                                        <div className="max-w-[260px]">
+                                                            <h2 className="text-[22px] font-bold leading-[1] text-[#c93b57]">{item.product?.name ?? "Unknown"}</h2>
+                                                            {item.color && <p className="mt-2 text-[16px] font-semibold text-[#c93b57]">Color: <span className="capitalize">{item.color}</span></p>}
+                                                            {item.size && <p className="text-[16px] font-semibold text-[#c93b57]">Size: <span className="capitalize">{item.size}</span></p>}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <p className="text-[28px] font-extrabold text-[#c93b57]">₱{(item.product?.price ?? 0).toFixed(2)}</p>
+                                                    </div>
+                                                    <div className="flex justify-center">
+                                                        <QuantityControl
+                                                            quantity={item.quantity}
+                                                            onDecrease={() => changeQuantity(item.id, item.quantity - 1)}
+                                                            onIncrease={() => changeQuantity(item.id, item.quantity + 1)}
+                                                        />
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <button type="button" onClick={() => deleteItem(item.id)} disabled={isUpdating}
+                                                            className="text-[20px] font-bold text-[#c93b57] transition hover:opacity-70 disabled:opacity-40">
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="md:hidden">
+                                                    <div className="mb-4 flex items-start gap-3">
+                                                        <CartCheckbox checked={item.selected} onToggle={() => toggleSelected(item.id)} />
+                                                        <div className="overflow-hidden rounded-[8px] border-[4px] border-[#e7748f]">
+                                                            <Image src={imageSrc} alt={item.product?.name ?? "Product"} width={92} height={92} className="h-[92px] w-[92px] object-cover" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <h2 className="text-[20px] font-bold leading-[1] text-[#c93b57]">{item.product?.name ?? "Unknown"}</h2>
+                                                            {item.color && <p className="mt-2 text-[14px] font-semibold text-[#c93b57]">Color: <span className="capitalize">{item.color}</span></p>}
+                                                            {item.size && <p className="text-[14px] font-semibold text-[#c93b57]">Size: <span className="capitalize">{item.size}</span></p>}
+                                                            <p className="mt-2 text-[24px] font-extrabold text-[#c93b57]">₱{(item.product?.price ?? 0).toFixed(2)}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center justify-between">
+                                                        <QuantityControl
+                                                            quantity={item.quantity}
+                                                            onDecrease={() => changeQuantity(item.id, item.quantity - 1)}
+                                                            onIncrease={() => changeQuantity(item.id, item.quantity + 1)}
+                                                        />
+                                                        <button type="button" onClick={() => deleteItem(item.id)} className="text-[18px] font-bold text-[#c93b57] transition hover:opacity-70">Delete</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="mt-8 flex flex-col items-end gap-4">
+                                <p className="text-[22px] font-extrabold text-[#c93b57]">
+                                    Total ({totalItems} {totalItems === 1 ? "Item" : "Items"}): <span>₱{total.toFixed(2)}</span>
+                                </p>
+                                <button type="button" onClick={handleCheckout}
+                                    className="rounded-full bg-[#c93b57] px-10 py-3 text-[28px] font-extrabold leading-none text-white transition hover:opacity-90 md:text-[32px]">
+                                    check out
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </section>
+>>>>>>> Stashed changes
             </div>
 
             <ScallopHeader />

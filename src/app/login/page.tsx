@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // ── Scallop bottom border (used on register card) ─────────────────────────────
 =======
 >>>>>>> Stashed changes
@@ -45,6 +46,21 @@ function ScallopBottom() {
 // ── Wavy yarn background pattern ─────────────────────────────────────────────
 =======
 >>>>>>> Stashed changes
+=======
+function ScallopBottom() {
+    return (
+        <div className="w-full overflow-hidden leading-none mt-auto">
+            <svg viewBox="0 0 400 28" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
+                <path
+                    d="M0,0 C10,0 10,24 20,24 C30,24 30,0 40,0 C50,0 50,24 60,24 C70,24 70,0 80,0 C90,0 90,24 100,24 C110,24 110,0 120,0 C130,0 130,24 140,24 C150,0 150,0 160,0 C170,0 170,24 180,24 C190,24 190,0 200,0 C210,0 210,24 220,24 C230,24 230,0 240,0 C250,0 250,24 260,24 C270,24 270,0 280,0 C290,0 290,24 300,24 C310,24 310,0 320,0 C330,0 330,24 340,24 C350,24 350,0 360,0 C370,0 370,24 380,24 C390,24 390,0 400,0 L400,28 L0,28 Z"
+                    fill="#C0395A"
+                />
+            </svg>
+        </div>
+    );
+}
+
+>>>>>>> Stashed changes
 function YarnBackground() {
   return (
     <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
@@ -70,6 +86,7 @@ function YarnBackground() {
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // ── Social button component ───────────────────────────────────────────────────
 function SocialButton({
   provider,
@@ -85,6 +102,8 @@ function SocialButton({
         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
       </svg>
 =======
+=======
+>>>>>>> Stashed changes
 function ToggleSwitch({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
     return (
         <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -236,12 +255,15 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
         } else {
             router.push("/");
         }
+<<<<<<< Updated upstream
         router.refresh(); 
+=======
+        router.refresh();
+>>>>>>> Stashed changes
     };
 
     return (
         <div className="min-h-screen w-full flex">
-            {/* ── Left: form ── */}
             <div className="flex-1 flex flex-col justify-center px-10 py-12" style={{ backgroundColor: "#FFF0F6" }}>
                 <div className="max-w-sm w-full mx-auto flex flex-col gap-4">
                     <div>
@@ -284,7 +306,6 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
                 </div>
             </div>
 
-            {/* ── Right: branding ── */}
             <div className="hidden md:flex flex-1 relative items-center justify-center overflow-hidden" style={{ backgroundColor: "#C0395A" }}>
                 <YarnBackground />
                 <div className="relative z-10 flex flex-col items-center gap-4">

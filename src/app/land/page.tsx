@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // src/app/Land.tsx
 <<<<<<< Updated upstream
 // StoreFront / Landing Page — matches Section 7 Figma prototype
@@ -6,6 +7,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+=======
+import Navbar from "@/components/Navbar";
+import HeroBanner from "@/components/HeroBanner";
+import FeaturedProducts from "@/components/FeaturedProducts";
+import Footer from "@/components/Footer";
+>>>>>>> Stashed changes
 
 // ── Static placeholder data (swap with Supabase fetch later) ──────────────────
 const FEATURED_PRODUCTS = [

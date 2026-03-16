@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PRODUCTS } from "@/lib/products";
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 const CATEGORIES = [
   { id: 1, name: "category 1", image: "/images/product1.png" },
   { id: 2, name: "category 1", image: "/images/product1.png" },
@@ -51,6 +52,8 @@ function StarRating({
   value: number;
   onChange: (v: number) => void;
 =======
+=======
+>>>>>>> Stashed changes
 function StarDisplay({ value }: { value: number }) {
     return (
         <div className="flex gap-0.5">
@@ -96,6 +99,7 @@ function FilterSidebar({ minPrice, maxPrice, rating, onMinPrice, onMaxPrice, onR
   );
 }
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 function FilterSidebar({
   minPrice,
@@ -148,6 +152,8 @@ function FilterSidebar({
             className="w-full rounded-lg border-2 border-pink-200 px-2 py-1 text-xs text-[#4B2E39] outline-none"
           />
 =======
+=======
+>>>>>>> Stashed changes
 function ProductCard({ product }: { product: ProductWithRating }) {
     return (
         <Link href={`/product/${product.id}`}
@@ -208,6 +214,7 @@ function ProductSkeleton() {
   );
 }
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 function CategoryCard({
   name,
@@ -281,6 +288,8 @@ function ProductCard({
     </Link>
   );
 =======
+=======
+>>>>>>> Stashed changes
 function CatalogSkeleton() {
     return (
         <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
@@ -300,7 +309,6 @@ function CatalogContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // Read search directly from URL — no useState needed
     const search = searchParams.get("q") ?? "";
 
     const [allProducts, setAllProducts] = useState<ProductWithRating[]>([]);
@@ -323,7 +331,11 @@ function CatalogContent() {
             const [productData, categoryData, salesCounts] = await Promise.all([
                 getAllProductsWithRatings(),
                 getCategories(),
+<<<<<<< Updated upstream
                 getProductSalesCounts(),   
+=======
+                getProductSalesCounts(),
+>>>>>>> Stashed changes
             ]);
             if (productData.length === 0)
                 setError("No products found. Check your Supabase connection.");
@@ -377,8 +389,6 @@ function CatalogContent() {
         <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
             <HeroBanner />
             <Navbar searchValue={search} onSearchChange={handleSearchChange} />
-
-
 
             <div className="mt-4 px-4 pb-0 md:px-8">
                 <div className="flex flex-col overflow-hidden rounded-3xl bg-[#FFF0F6] shadow-lg">
