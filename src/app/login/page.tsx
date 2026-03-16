@@ -87,8 +87,6 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
         }
 
         setLoading(true);
-        // ✅ Calls our custom register() from src/lib/auth.ts
-        // This hashes the password and inserts into the users table
         const result = await register(username, email, password);
         setLoading(false);
 
@@ -97,8 +95,6 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
             return;
         }
 
-        // Session is now set in localStorage by register()
-        // Redirect to home page
         router.push("/");
         router.refresh();
     };
@@ -182,8 +178,6 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
         }
 
         setLoading(true);
-        // ✅ Calls our custom login() from src/lib/auth.ts
-        // This fetches user by email, compares bcrypt hash, saves session to localStorage
         const result = await login(email, password);
         setLoading(false);
 
@@ -192,13 +186,12 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
             return;
         }
 
-        // Admin → go to admin dashboard, regular user → go to home
         if (result.user?.role === "admin") {
             router.push("/admin");
         } else {
             router.push("/");
         }
-        router.refresh(); // tells Next.js to re-evaluate the page with the new session
+        router.refresh(); 
     };
 
     return (

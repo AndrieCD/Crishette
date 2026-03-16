@@ -11,9 +11,6 @@ import { getCartItems, updateCartQuantity, removeFromCart } from "@/lib/cart";
 import { getSession } from "@/lib/auth";
 import type { CartItem, CrishetteUser } from "@/lib/types";
 
-// ── CartItem extended with client-only `selected` flag ────────
-// The DB has no `selected` column — this is purely UI state,
-// like a transient ViewModel property in C# MVC.
 type CartItemWithSelection = CartItem & { selected: boolean };
 
 // ── Sub-components ─────────────────────────────────────────────
@@ -80,9 +77,7 @@ export default function ShoppingCartPage() {
             if (!session) { router.push("/login"); return; }
 
             setLoading(true);
-            // getCartItems joins the products table → item.product has name, price, image
             const data = await getCartItems(session.id);
-            // Add client-only `selected: false` to every row
             setCartItems(data.map((item) => ({ ...item, selected: false })));
             setLoading(false);
         }
@@ -123,15 +118,11 @@ export default function ShoppingCartPage() {
         setUpdatingIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
     };
 
-    // Delete — remove from UI immediately, then delete from Supabase
     const deleteItem = async (id: string) => {
         setCartItems((prev) => prev.filter((item) => item.id !== id));
         await removeFromCart(id);
     };
 
-    // Checkout — serialize selected items into sessionStorage and navigate
-    // sessionStorage is like localStorage but auto-clears when the tab closes.
-    // Shipping and Checkout pages read from it.
     const handleCheckout = () => {
         if (selectedItems.length === 0) {
             alert("Please select at least one item before checking out.");

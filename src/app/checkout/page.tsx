@@ -58,12 +58,10 @@ export default function CheckoutPage() {
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderError, setOrderError] = useState<string | null>(null);
 
-    // Inline validation errors shown next to the address section
     const [validationErrors, setValidationErrors] = useState<{ phone?: string; address?: string }>({});
 
     const isPaymentUnavailable = UNAVAILABLE_METHODS.has(paymentMethod);
 
-    // Derived booleans for missing fields — used for the warning banner
     const isMissingPhone = !address.phone.trim();
     const isMissingAddress = !address.addressLine.trim();
     const isAddressIncomplete = isMissingPhone || isMissingAddress;
@@ -96,7 +94,6 @@ export default function CheckoutPage() {
 
     const handlePlaceOrder = async () => {
         if (!user || isPaymentUnavailable) return;
-        // Gate: stop here if phone or address are empty
         if (!validateAddress()) return;
 
         setPlacing(true);

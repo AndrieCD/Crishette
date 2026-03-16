@@ -7,8 +7,6 @@ import Navbar from "@/components/Navbar";
 import HeroBanner from "@/components/HeroBanner";
 import { getSession } from "@/lib/auth";
 
-// ── Shipping options (static — no DB table needed for these) ──
-// These are fixed business rules, not user data.
 const SHIPPING_OPTIONS = [
     {
         id: "standard",
@@ -40,10 +38,8 @@ export default function ShippingMethodPage() {
     // ── Auth guard ─────────────────────────────────────────────
     useEffect(() => {
         if (!getSession()) { router.push("/login"); return; }
-        // Guard: if user navigated here directly without going through cart, send back
         if (!sessionStorage.getItem("checkoutItems")) { router.push("/shopping-cart"); return; }
 
-        // Restore previously chosen shipping if user clicks "change" from checkout
         const saved = sessionStorage.getItem("selectedShipping");
         if (saved) {
             try { setSelectedId(JSON.parse(saved).id); } catch { /* ignore */ }
@@ -52,7 +48,6 @@ export default function ShippingMethodPage() {
 
     const handleConfirm = () => {
         const chosen = SHIPPING_OPTIONS.find((o) => o.id === selectedId)!;
-        // Save full shipping object so checkout page can display label + fee
         sessionStorage.setItem("selectedShipping", JSON.stringify(chosen));
         router.push("/checkout");
     };

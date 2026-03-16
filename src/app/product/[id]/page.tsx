@@ -25,7 +25,6 @@ function QuantityControl({ quantity, onDecrease, onIncrease }: {
     );
 }
 
-// Read-only star display — shows the average from all reviews
 function StarDisplay({ value, count }: { value: number; count: number }) {
     return (
         <div className="flex items-center gap-2">

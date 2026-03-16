@@ -149,15 +149,10 @@ function CatalogSkeleton() {
     );
 }
 
-// ── ✅ The actual catalog content — isolated so Suspense can wrap JUST this ───
-// useSearchParams() MUST live inside a component that is wrapped by <Suspense>.
-// Vercel's build pre-renders pages statically and throws if useSearchParams()
-// is called outside a Suspense boundary — it can't know the URL at build time.
 function CatalogContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // Read search directly from URL — no useState needed
     const search = searchParams.get("q") ?? "";
 
     const [allProducts, setAllProducts] = useState<ProductWithRating[]>([]);
@@ -333,10 +328,6 @@ function CatalogContent() {
     );
 }
 
-// ── ✅ Default export wraps CatalogContent in Suspense ────────────────────────
-// This is the ONLY change needed to fix the Vercel build error.
-// Suspense tells Next.js: "this part of the page needs the URL at runtime,
-// show a fallback while it loads instead of trying to pre-render it."
 export default function ProductCatalogPage() {
     return (
         <Suspense fallback={<CatalogSkeleton />}>

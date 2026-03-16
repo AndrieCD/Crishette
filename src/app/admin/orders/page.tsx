@@ -278,7 +278,6 @@ export default function AdminOrdersPage() {
               <tbody>
                 {filtered.map((order, i) => {
                   const itemCount = order.order_items?.reduce((s, item) => s + item.quantity, 0) ?? 0;
-                  // Show first line of delivery address only
                   const addressLine = order.delivery_address?.split("|")[0]?.trim() ?? "—";
 
                   return (

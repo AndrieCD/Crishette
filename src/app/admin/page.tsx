@@ -64,7 +64,6 @@ function ProductModal({ onClose, onSave, initial }: {
             price: parseFloat(price),
             stock: parseInt(stock) || 0,
             image: image.trim(),
-            // Split comma-separated strings into arrays, trim whitespace
             colors: colors.split(",").map((c) => c.trim()).filter(Boolean),
             sizes: sizes.split(",").map((s) => s.trim()).filter(Boolean),
             category: category.trim() || undefined,
