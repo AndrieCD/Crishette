@@ -117,21 +117,32 @@ export default function CheckoutPage() {
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+<<<<<<< Updated upstream
   const [address, setAddress] = useState<Address>(initialAddress);
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("Cash On Delivery");
   const [selectedShippingId, setSelectedShippingId] = useState("standard");
+=======
+    const [validationErrors, setValidationErrors] = useState<{ phone?: string; address?: string }>({});
+>>>>>>> Stashed changes
 
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
 
+<<<<<<< Updated upstream
   const [draftAddress, setDraftAddress] = useState<Address>(initialAddress);
   const router = useRouter();
+=======
+    const isMissingPhone = !address.phone.trim();
+    const isMissingAddress = !address.addressLine.trim();
+    const isAddressIncomplete = isMissingPhone || isMissingAddress;
+>>>>>>> Stashed changes
 
   useEffect(() => {
     const rawItems = localStorage.getItem("checkoutItems");
 
+<<<<<<< Updated upstream
     if (rawItems) {
       try {
         const parsedItems: CheckoutItem[] = JSON.parse(rawItems);
@@ -139,6 +150,55 @@ export default function CheckoutPage() {
       } catch (error) {
         console.error("Failed to parse checkout items:", error);
       }
+=======
+    const itemSubtotal = useMemo(() => checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0), [checkoutItems]);
+    const totalPayment = itemSubtotal + shipping.fee;
+
+    const validateAddress = (): boolean => {
+        const errors: { phone?: string; address?: string } = {};
+        if (isMissingPhone) errors.phone = "Phone number is required before placing your order.";
+        if (isMissingAddress) errors.address = "Delivery address is required before placing your order.";
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handlePlaceOrder = async () => {
+        if (!user || isPaymentUnavailable) return;
+        if (!validateAddress()) return;
+
+        setPlacing(true);
+        setOrderError(null);
+        const cartItemsForOrder = checkoutItems.map((item) => ({
+            id: item.cart_item_id, user_id: user.id, product_id: item.product_id,
+            quantity: item.quantity, color: item.color, size: item.size,
+            added_at: new Date().toISOString(),
+            product: {
+                id: item.product_id, name: item.product_name, image: item.product_image, price: item.price,
+                description: "", colors: [], sizes: [], stock: 0, is_featured: false, is_published: true, created_at: "", updated_at: ""
+            },
+        }));
+        const deliveryAddress = `${address.fullName} | ${address.phone} | ${address.addressLine}`;
+        const result = await placeOrder(user.id, cartItemsForOrder, shipping.fee, shipping.label, paymentMethod, deliveryAddress);
+        if (!result.success) { setOrderError(result.error ?? "Failed to place order."); setPlacing(false); return; }
+        const ids = checkoutItems.map((i) => i.cart_item_id);
+        for (const id of ids) { await import("@/lib/cart").then(({ removeFromCart }) => removeFromCart(id)); }
+        sessionStorage.removeItem("checkoutItems");
+        sessionStorage.removeItem("selectedShipping");
+        setPlacing(false);
+        setOrderPlaced(true);
+    };
+
+    if (!placing && checkoutItems.length === 0 && !orderPlaced) {
+        return (
+            <main className="min-h-screen bg-[#c93b57] font-['Fredoka']"><HeroBanner /><Navbar />
+                <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+                    <h1 className="text-[34px] font-extrabold text-white">No items selected</h1>
+                    <p className="mt-3 text-[18px] font-semibold text-pink-200">Please go back to your cart and choose at least one item.</p>
+                    <Link href="/shopping-cart" className="mt-8 rounded-full bg-white px-8 py-3 text-[22px] font-extrabold text-[#c93b57]">back to cart</Link>
+                </div>
+            </main>
+        );
+>>>>>>> Stashed changes
     }
 
     setIsLoaded(true);

@@ -1,5 +1,8 @@
 // src/app/Land.tsx
+<<<<<<< Updated upstream
 // StoreFront / Landing Page — matches Section 7 Figma prototype
+=======
+>>>>>>> Stashed changes
 
 import Image from "next/image";
 import Link from "next/link";

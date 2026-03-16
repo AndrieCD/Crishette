@@ -53,6 +53,7 @@ function TopNavIcon({
   );
 }
 
+<<<<<<< Updated upstream
 function QuantityControl({
   quantity,
   onDecrease,
@@ -83,6 +84,29 @@ function QuantityControl({
       </button>
     </div>
   );
+=======
+function StarDisplay({ value, count }: { value: number; count: number }) {
+    return (
+        <div className="flex items-center gap-2">
+            <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <span key={star} className={`text-2xl ${star <= Math.round(value) ? "text-[#c93b57]" : "text-pink-200"}`}>★</span>
+                ))}
+            </div>
+            <span className="text-sm font-semibold text-[#c93b57]">
+                {value > 0 ? `${value.toFixed(1)} (${count} review${count !== 1 ? "s" : ""})` : "No reviews yet"}
+            </span>
+        </div>
+    );
+}
+
+function Toast({ message, visible }: { message: string; visible: boolean }) {
+    return (
+        <div className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#c93b57] px-6 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
+            {message}
+        </div>
+    );
+>>>>>>> Stashed changes
 }
 
 export default function ProductDetailsPage() {

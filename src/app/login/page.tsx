@@ -8,7 +8,10 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+<<<<<<< Updated upstream
 // ── Scallop bottom border (used on register card) ─────────────────────────────
+=======
+>>>>>>> Stashed changes
 function ScallopBottom() {
   return (
     <div className="w-full overflow-hidden leading-none mt-auto">
@@ -38,7 +41,10 @@ function ScallopBottom() {
   );
 }
 
+<<<<<<< Updated upstream
 // ── Wavy yarn background pattern ─────────────────────────────────────────────
+=======
+>>>>>>> Stashed changes
 function YarnBackground() {
   return (
     <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
@@ -63,6 +69,7 @@ function YarnBackground() {
   );
 }
 
+<<<<<<< Updated upstream
 // ── Social button component ───────────────────────────────────────────────────
 function SocialButton({
   provider,
@@ -77,6 +84,232 @@ function SocialButton({
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
       </svg>
+=======
+function ToggleSwitch({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
+    return (
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+            <div onClick={onChange} className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${checked ? "bg-[#C0395A]" : "bg-gray-300"}`}>
+                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"}`} />
+            </div>
+            <span className="text-sm text-[#4B2E39] font-['Fredoka']">{label}</span>
+        </label>
+    );
+}
+
+function ErrorMsg({ msg }: { msg: string }) {
+    if (!msg) return null;
+    return <p className="rounded-xl bg-red-50 border border-red-200 px-3 py-2 text-red-500 text-xs font-['Fredoka']">{msg}</p>;
+}
+
+function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
+    const router = useRouter();
+    const [rememberMe, setRememberMe] = useState(false);
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirm, setConfirm] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
+
+        if (!username || !email || !password || !confirm) {
+            setError("Please fill in all fields.");
+            return;
+        }
+        if (!email.includes("@")) {
+            setError("Please enter a valid email address.");
+            return;
+        }
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters.");
+            return;
+        }
+        if (password !== confirm) {
+            setError("Passwords do not match.");
+            return;
+        }
+
+        setLoading(true);
+        const result = await register(username, email, password);
+        setLoading(false);
+
+        if (!result.success) {
+            setError(result.error ?? "Registration failed.");
+            return;
+        }
+
+        router.push("/");
+        router.refresh();
+    };
+
+    return (
+        <div className="relative min-h-screen w-full flex flex-col items-center justify-center px-6 py-10 overflow-hidden" style={{ backgroundColor: "#C0395A" }}>
+            <YarnBackground />
+
+            <div className="relative z-10 w-full max-w-sm bg-[#FFF0F6] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+                <div className="flex flex-col items-center pt-8 pb-4 px-8">
+                    <Image src="/assets/CrishetteLogo.png" alt="Crishette Logo" width={72} height={72} className="drop-shadow-md" />
+                    <h1 className="font-['Fredoka'] font-bold text-2xl text-[#C0395A] mt-1 tracking-wide">
+                        WELCOMES YOU!
+                    </h1>
+                    <p className="text-center text-sm text-[#4B2E39] mt-2 font-['Fredoka']">
+                        Create your account to start shopping handmade crochets. 🧶
+                    </p>
+                </div>
+
+                <div className="px-8 pb-6 flex flex-col gap-3">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                        <input
+                            type="text" placeholder="Username" value={username}
+                            onChange={(e) => { setUsername(e.target.value); setError(""); }}
+                            className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
+                        />
+                        <input
+                            type="email" placeholder="Email" value={email}
+                            onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                            className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
+                        />
+                        <input
+                            type="password" placeholder="Password" value={password}
+                            onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                            className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
+                        />
+                        <input
+                            type="password" placeholder="Confirm Password" value={confirm}
+                            onChange={(e) => { setConfirm(e.target.value); setError(""); }}
+                            className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
+                        />
+
+                        <ErrorMsg msg={error} />
+
+                        <ToggleSwitch checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} label="Remember me" />
+
+                        <button type="submit" disabled={loading}
+                            className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md mt-1 disabled:opacity-50">
+                            {loading ? "Creating account..." : "Sign up"}
+                        </button>
+                    </form>
+
+                    <p className="text-center text-sm text-[#4B2E39] font-['Fredoka']">
+                        Already have an account?{" "}
+                        <button onClick={onSwitchToLogin} className="font-bold text-[#C0395A] hover:underline">Sign in</button>
+                    </p>
+                </div>
+
+                <ScallopBottom />
+            </div>
+        </div>
+    );
+}
+
+function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
+    const router = useRouter();
+    const [rememberMe, setRememberMe] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
+
+        if (!email || !password) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
+        setLoading(true);
+        const result = await login(email, password);
+        setLoading(false);
+
+        if (!result.success) {
+            setError(result.error ?? "Login failed.");
+            return;
+        }
+
+        if (result.user?.role === "admin") {
+            router.push("/admin");
+        } else {
+            router.push("/");
+        }
+        router.refresh(); 
+    };
+
+    return (
+        <div className="min-h-screen w-full flex">
+            {/* ── Left: form ── */}
+            <div className="flex-1 flex flex-col justify-center px-10 py-12" style={{ backgroundColor: "#FFF0F6" }}>
+                <div className="max-w-sm w-full mx-auto flex flex-col gap-4">
+                    <div>
+                        <h1 className="font-['Fredoka'] font-bold text-2xl text-[#C0395A]">WELCOME BACK!</h1>
+                        <p className="text-sm text-[#4B2E39] font-['Fredoka']">Enter your email and password to sign in</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-1">
+                        <div>
+                            <label className="text-sm font-semibold text-[#C0395A] font-['Fredoka'] mb-1 block">Email</label>
+                            <input
+                                type="email" placeholder="your@email.com" value={email}
+                                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                                className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-sm font-semibold text-[#C0395A] font-['Fredoka'] mb-1 block">Password</label>
+                            <input
+                                type="password" placeholder="••••••••••••••••" value={password}
+                                onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                                className="w-full rounded-full border-2 border-pink-200 px-4 py-2 text-sm bg-white outline-none font-['Fredoka'] text-[#4B2E39] placeholder-pink-300 focus:ring-2 focus:ring-pink-300 transition"
+                            />
+                        </div>
+
+                        <ErrorMsg msg={error} />
+
+                        <ToggleSwitch checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} label="Remember me" />
+
+                        <button type="submit" disabled={loading}
+                            className="w-full bg-[#C0395A] text-white font-bold rounded-full py-2.5 text-base hover:bg-[#a02845] transition-colors font-['Fredoka'] shadow-md disabled:opacity-50">
+                            {loading ? "Signing in..." : "Sign in"}
+                        </button>
+                    </form>
+
+                    <p className="text-sm text-[#4B2E39] font-['Fredoka']">
+                        Don&apos;t have an account?{" "}
+                        <button onClick={onSwitchToRegister} className="font-bold text-[#C0395A] hover:underline">Sign up</button>
+                    </p>
+                </div>
+            </div>
+
+            {/* ── Right: branding ── */}
+            <div className="hidden md:flex flex-1 relative items-center justify-center overflow-hidden" style={{ backgroundColor: "#C0395A" }}>
+                <YarnBackground />
+                <div className="relative z-10 flex flex-col items-center gap-4">
+                    <Image src="/assets/CrishetteLogo.png" alt="Crishette Logo" width={120} height={120} className="drop-shadow-xl" />
+                    <div className="text-center">
+                        <h2 className="font-['Fredoka'] font-bold text-5xl text-white tracking-wide drop-shadow-lg" style={{ WebkitTextStroke: "2px #a02845" }}>
+                            crishette
+                        </h2>
+                        <p className="text-pink-200 text-sm font-['Fredoka'] mt-2 italic">✦ your wish is my crochet</p>
+                    </div>
+                </div>
+                <div className="absolute top-1/4 left-1/4 text-pink-200 text-2xl opacity-60 select-none">✦</div>
+                <div className="absolute top-1/3 right-1/4 text-pink-300 text-3xl opacity-50 select-none">✦</div>
+                <div className="absolute bottom-1/3 left-1/3 text-pink-200 text-xl opacity-40 select-none">✦</div>
+            </div>
+        </div>
+    );
+}
+
+export default function LoginPage() {
+    const [view, setView] = useState<"login" | "register">("login");
+
+    return view === "login" ? (
+        <LoginPanel onSwitchToRegister={() => setView("register")} />
+>>>>>>> Stashed changes
     ) : (
       // Google G icon
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">

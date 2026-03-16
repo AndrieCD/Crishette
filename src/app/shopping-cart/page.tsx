@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+<<<<<<< Updated upstream
 type CartItem = {
   id: string;
   name: string;
@@ -19,6 +20,10 @@ type CartItem = {
 
 function ScallopHeader() {
   const scallops = Array.from({ length: 12 });
+=======
+type CartItemWithSelection = CartItem & { selected: boolean };
+
+>>>>>>> Stashed changes
 
   return (
     <div className="pointer-events-none absolute left-0 right-0 top-full flex h-[38px] overflow-hidden">
@@ -138,6 +143,7 @@ export default function ShoppingCartPage() {
     setIsLoaded(true);
   }, []);
 
+<<<<<<< Updated upstream
   const persistCart = (items: CartItem[]) => {
     setCartItems(items);
     localStorage.setItem("cartItems", JSON.stringify(items));
@@ -171,6 +177,69 @@ export default function ShoppingCartPage() {
     const updated = cartItems.filter((_, itemIndex) => itemIndex !== index);
     persistCart(updated);
   };
+=======
+            setLoading(true);
+            const data = await getCartItems(session.id);
+            setCartItems(data.map((item) => ({ ...item, selected: false })));
+            setLoading(false);
+        }
+        load();
+    }, []);
+
+    const total = useMemo(
+        () => cartItems.reduce((sum, item) => sum + (item.product?.price ?? 0) * item.quantity, 0),
+        [cartItems]
+    );
+    const totalItems = useMemo(
+        () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
+        [cartItems]
+    );
+    const selectedItems = useMemo(
+        () => cartItems.filter((item) => item.selected),
+        [cartItems]
+    );
+
+    const toggleSelected = (id: string) => {
+        setCartItems((prev) =>
+            prev.map((item) => item.id === id ? { ...item, selected: !item.selected } : item)
+        );
+    };
+
+    const changeQuantity = async (id: string, newQty: number) => {
+        if (newQty < 1) return;
+        setUpdatingIds((prev) => new Set(prev).add(id));
+        setCartItems((prev) =>
+            prev.map((item) => item.id === id ? { ...item, quantity: newQty } : item)
+        );
+        await updateCartQuantity(id, newQty);
+        setUpdatingIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+    };
+
+    const deleteItem = async (id: string) => {
+        setCartItems((prev) => prev.filter((item) => item.id !== id));
+        await removeFromCart(id);
+    };
+
+    const handleCheckout = () => {
+        if (selectedItems.length === 0) {
+            alert("Please select at least one item before checking out.");
+            return;
+        }
+        sessionStorage.setItem("checkoutItems", JSON.stringify(
+            selectedItems.map((item) => ({
+                cart_item_id: item.id,
+                product_id: item.product_id,
+                product_name: item.product?.name ?? "Unknown",
+                product_image: item.product?.image ?? "",
+                price: item.product?.price ?? 0,
+                quantity: item.quantity,
+                color: item.color ?? "",
+                size: item.size ?? "",
+            }))
+        ));
+        router.push("/shipping-method");
+    };
+>>>>>>> Stashed changes
 
   const handleCheckout = () => {
     if (selectedItems.length === 0) {
