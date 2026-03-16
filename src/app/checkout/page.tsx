@@ -1,4 +1,3 @@
-// src/app/checkout/page.tsx
 "use client";
 
 import Image from "next/image";
@@ -83,7 +82,6 @@ export default function CheckoutPage() {
     const itemSubtotal = useMemo(() => checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0), [checkoutItems]);
     const totalPayment = itemSubtotal + shipping.fee;
 
-    // Validate required fields and populate error messages
     const validateAddress = (): boolean => {
         const errors: { phone?: string; address?: string } = {};
         if (isMissingPhone) errors.phone = "Phone number is required before placing your order.";

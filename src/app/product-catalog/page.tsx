@@ -1,5 +1,4 @@
 "use client";
-// src/app/product-catalog/page.tsx
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -14,9 +13,6 @@ import {
 } from "@/lib/products";
 import HeroBanner from "@/components/HeroBanner";
 
-
-
-// ── Star display (read-only) ──────────────────────────────────────────────────
 function StarDisplay({ value }: { value: number }) {
     return (
         <div className="flex gap-0.5">
@@ -27,7 +23,6 @@ function StarDisplay({ value }: { value: number }) {
     );
 }
 
-// ── Star rating (clickable) ───────────────────────────────────────────────────
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
     return (
         <div className="flex gap-1">
@@ -39,7 +34,6 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
     );
 }
 
-// ── Filter Sidebar ────────────────────────────────────────────────────────────
 function FilterSidebar({ minPrice, maxPrice, rating, onMinPrice, onMaxPrice, onRating, onApply, onClear }: {
     minPrice: string; maxPrice: string; rating: number;
     onMinPrice: (v: string) => void; onMaxPrice: (v: string) => void; onRating: (v: number) => void;
@@ -95,7 +89,6 @@ function CategoryCard({ name, active, onClick }: { name: string; active: boolean
     );
 }
 
-// ── Product Card ──────────────────────────────────────────────────────────────
 function ProductCard({ product }: { product: ProductWithRating }) {
     return (
         <Link href={`/product/${product.id}`}
@@ -119,7 +112,6 @@ function ProductCard({ product }: { product: ProductWithRating }) {
     );
 }
 
-// ── Loading Skeleton ──────────────────────────────────────────────────────────
 function ProductSkeleton() {
     return (
         <div className="overflow-hidden rounded-2xl border-2 border-pink-100 bg-white shadow-md animate-pulse">
@@ -133,7 +125,6 @@ function ProductSkeleton() {
     );
 }
 
-// ── Page loading fallback (shown while Suspense resolves) ─────────────────────
 function CatalogSkeleton() {
     return (
         <div className="min-h-screen bg-[#C0395A] font-['Fredoka']">
@@ -175,12 +166,11 @@ function CatalogContent() {
             const [productData, categoryData, salesCounts] = await Promise.all([
                 getAllProductsWithRatings(),
                 getCategories(),
-                getProductSalesCounts(),   // ← add this
+                getProductSalesCounts(),   
             ]);
             if (productData.length === 0)
                 setError("No products found. Check your Supabase connection.");
 
-            // Attach sales_count to each product
             const withSales = productData.map((p) => ({
                 ...p,
                 sales_count: salesCounts[p.id] ?? 0,

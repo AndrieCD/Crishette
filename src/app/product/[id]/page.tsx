@@ -1,4 +1,3 @@
-// src/app/product/[id]/page.tsx
 "use client";
 
 import Image from "next/image";

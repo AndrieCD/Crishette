@@ -1,4 +1,3 @@
-// src/app/shipping-method/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -35,7 +34,6 @@ export default function ShippingMethodPage() {
     const router = useRouter();
     const [selectedId, setSelectedId] = useState("standard");
 
-    // ── Auth guard ─────────────────────────────────────────────
     useEffect(() => {
         if (!getSession()) { router.push("/login"); return; }
         if (!sessionStorage.getItem("checkoutItems")) { router.push("/shopping-cart"); return; }

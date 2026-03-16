@@ -1,4 +1,3 @@
-// src/app/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { login, register } from "@/lib/auth";
 
-// ── Scallop bottom border ──────────────────────────────────────
 function ScallopBottom() {
     return (
         <div className="w-full overflow-hidden leading-none mt-auto">
@@ -20,7 +18,6 @@ function ScallopBottom() {
     );
 }
 
-// ── Yarn background ────────────────────────────────────────────
 function YarnBackground() {
     return (
         <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
@@ -36,7 +33,6 @@ function YarnBackground() {
     );
 }
 
-// ── Toggle switch ──────────────────────────────────────────────
 function ToggleSwitch({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
     return (
         <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -48,13 +44,11 @@ function ToggleSwitch({ checked, onChange, label }: { checked: boolean; onChange
     );
 }
 
-// ── Error message ──────────────────────────────────────────────
 function ErrorMsg({ msg }: { msg: string }) {
     if (!msg) return null;
     return <p className="rounded-xl bg-red-50 border border-red-200 px-3 py-2 text-red-500 text-xs font-['Fredoka']">{msg}</p>;
 }
 
-// ── REGISTER PANEL ─────────────────────────────────────────────
 function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
     const router = useRouter();
     const [rememberMe, setRememberMe] = useState(false);
@@ -159,7 +153,6 @@ function RegisterPanel({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
     );
 }
 
-// ── LOGIN PANEL ────────────────────────────────────────────────
 function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
     const router = useRouter();
     const [rememberMe, setRememberMe] = useState(false);
@@ -259,7 +252,6 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
     );
 }
 
-// ── Main Page ──────────────────────────────────────────────────
 export default function LoginPage() {
     const [view, setView] = useState<"login" | "register">("login");
 

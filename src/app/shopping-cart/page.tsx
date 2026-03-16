@@ -1,4 +1,3 @@
-// src/app/shopping-cart/page.tsx
 "use client";
 
 import Image from "next/image";
@@ -13,7 +12,6 @@ import type { CartItem, CrishetteUser } from "@/lib/types";
 
 type CartItemWithSelection = CartItem & { selected: boolean };
 
-// ── Sub-components ─────────────────────────────────────────────
 
 function CartCheckbox({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
     return (
@@ -62,7 +60,6 @@ function CartSkeleton() {
     );
 }
 
-// ── Main Page ──────────────────────────────────────────────────
 export default function ShoppingCartPage() {
     const router = useRouter();
     const [user, setUser] = useState<CrishetteUser | null>(null);
@@ -84,7 +81,6 @@ export default function ShoppingCartPage() {
         load();
     }, []);
 
-    // ── Derived totals ─────────────────────────────────────────
     const total = useMemo(
         () => cartItems.reduce((sum, item) => sum + (item.product?.price ?? 0) * item.quantity, 0),
         [cartItems]
@@ -98,16 +94,12 @@ export default function ShoppingCartPage() {
         [cartItems]
     );
 
-    // ── Handlers ───────────────────────────────────────────────
-
-    // Checkbox toggle — pure UI state, no DB call
     const toggleSelected = (id: string) => {
         setCartItems((prev) =>
             prev.map((item) => item.id === id ? { ...item, selected: !item.selected } : item)
         );
     };
 
-    // Quantity change — optimistic UI update, then sync to Supabase
     const changeQuantity = async (id: string, newQty: number) => {
         if (newQty < 1) return;
         setUpdatingIds((prev) => new Set(prev).add(id));

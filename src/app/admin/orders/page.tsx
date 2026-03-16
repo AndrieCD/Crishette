@@ -1,4 +1,3 @@
-// src/app/admin/orders/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,10 +8,8 @@ import { getSession, logout } from "@/lib/auth";
 import { adminGetAllOrders, adminUpdateOrderStatus } from "@/lib/orders";
 import type { Order, OrderStatus } from "@/lib/types";
 
-// ── All possible order statuses ────────────────────────────────
 const STATUSES: OrderStatus[] = ["Pending", "Processing", "In Transit", "Completed", "Cancelled"];
 
-// ── Status badge colors ────────────────────────────────────────
 const STATUS_STYLE: Record<OrderStatus, string> = {
     Pending: "bg-pink-100 text-[#C0395A]",
     Processing: "bg-yellow-100 text-yellow-700",
@@ -29,7 +26,6 @@ function StatusBadge({ status }: { status: OrderStatus }) {
   );
 }
 
-// ── Yarn background ────────────────────────────────────────────
 function YarnBackground() {
   return (
     <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden">
@@ -43,7 +39,6 @@ function YarnBackground() {
   );
 }
 
-// ── Order detail modal ─────────────────────────────────────────
 function OrderModal({ order, onClose, onStatusChange }: {
   order: Order;
   onClose: () => void;
@@ -153,7 +148,6 @@ function OrderModal({ order, onClose, onStatusChange }: {
   );
 }
 
-// ── Main Admin Orders Page ─────────────────────────────────────
 export default function AdminOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -175,7 +169,6 @@ export default function AdminOrdersPage() {
 
   const handleLogout = () => { logout(); router.push("/login"); router.refresh(); };
 
-  // Update order status in local state after modal save
   const handleStatusChange = (orderId: string, status: OrderStatus) => {
     setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
   };
@@ -187,7 +180,6 @@ export default function AdminOrdersPage() {
     return matchesStatus && matchesSearch;
   });
 
-  // Count per status for filter pills
   const countByStatus = (status: OrderStatus) => orders.filter((o) => o.status === status).length;
 
   return (

@@ -1,8 +1,4 @@
-// src/app/admin/products/page.tsx
 "use client";
-
-// Admin Products List Page
-// Converted from plain HTML/CSS to Next.js + TypeScript + Tailwind CSS
 
 import { useState } from "react";
 import Image from "next/image";

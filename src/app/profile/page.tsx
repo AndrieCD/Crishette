@@ -1,4 +1,3 @@
-// src/app/profile/page.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -181,7 +180,6 @@ function MyProfileTab({ user, onSaved }: { user: CrishetteUser; onSaved: (u: Cri
     );
 }
 
-// ── Status badge — includes "In Transit" ──────────────────────
 function StatusBadge({ status }: { status: string }) {
     const colors: Record<string, string> = {
         Completed: "bg-green-100 text-green-600",
@@ -197,7 +195,6 @@ function StatusBadge({ status }: { status: string }) {
     );
 }
 
-// ── Cancel confirmation dialog ─────────────────────────────────
 function CancelConfirmDialog({ onConfirm, onCancel, cancelling }: {
     onConfirm: () => void; onCancel: () => void; cancelling: boolean;
 }) {
@@ -224,7 +221,6 @@ function CancelConfirmDialog({ onConfirm, onCancel, cancelling }: {
     );
 }
 
-// ── My Purchases tab ───────────────────────────────────────────
 function MyPurchasesTab({ userId }: { userId: string }) {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -241,7 +237,6 @@ function MyPurchasesTab({ userId }: { userId: string }) {
         const result = await cancelOrder(cancellingOrderId, userId);
         setCancelling(false);
         if (result.success) {
-            // Optimistic update — flip status in local state immediately
             setOrders((prev) =>
                 prev.map((o) => o.id === cancellingOrderId ? { ...o, status: "Cancelled" } : o)
             );

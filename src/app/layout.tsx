@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Fredoka } from "next/font/google";
 import "../styles/globals.css";

@@ -1,4 +1,3 @@
-// src/app/admin/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -16,7 +15,6 @@ import {
 } from "@/lib/products";
 import type { Product } from "@/lib/types";
 
-// ── Yarn background ────────────────────────────────────────────
 function YarnBackground() {
     return (
         <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden">
@@ -30,7 +28,6 @@ function YarnBackground() {
     );
 }
 
-// ── Toggle switch ──────────────────────────────────────────────
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
     return (
         <div onClick={onChange} className={`relative w-10 h-5 rounded-full cursor-pointer transition-colors duration-200 ${checked ? "bg-[#C0395A]" : "bg-gray-300"}`}>
@@ -39,7 +36,6 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
     );
 }
 
-// ── Add/Edit Product Modal ─────────────────────────────────────
 function ProductModal({ onClose, onSave, initial }: {
     onClose: () => void;
     onSave: (data: Partial<Product>) => void;
@@ -129,7 +125,6 @@ function ProductModal({ onClose, onSave, initial }: {
     );
 }
 
-// ── Delete Confirm Modal ───────────────────────────────────────
 function DeleteModal({ productName, onCancel, onConfirm }: {
     productName: string; onCancel: () => void; onConfirm: () => void;
 }) {
@@ -150,7 +145,6 @@ function DeleteModal({ productName, onCancel, onConfirm }: {
     );
 }
 
-// ── Main Admin Page ────────────────────────────────────────────
 export default function AdminPage() {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
@@ -161,24 +155,19 @@ export default function AdminPage() {
     const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
     const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
 
-    // ── Auth guard — must be admin ─────────────────────────────
     useEffect(() => {
         const session = getSession();
         if (!session) { router.push("/login"); return; }
         if (session.role !== "admin") { router.push("/"); return; }
 
-        // Load all products from Supabase
         adminGetAllProducts().then((data) => {
             setProducts(data);
             setLoading(false);
         });
     }, []);
 
-    // ── Handlers ───────────────────────────────────────────────
-
     const handleTogglePublished = async (product: Product) => {
         setTogglingIds((prev) => new Set(prev).add(product.id));
-        // Optimistic update
         setProducts((prev) => prev.map((p) => p.id === product.id ? { ...p, is_published: !p.is_published } : p));
         await adminTogglePublished(product.id, !product.is_published);
         setTogglingIds((prev) => { const s = new Set(prev); s.delete(product.id); return s; });
