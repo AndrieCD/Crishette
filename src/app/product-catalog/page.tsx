@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import {
     getAllProductsWithRatings,
     getCategories,
+    getProductSalesCounts,
     type ProductWithRating,
 } from "@/lib/products";
 import HeroBanner from "@/components/HeroBanner";
@@ -76,21 +77,18 @@ function FilterSidebar({ minPrice, maxPrice, rating, onMinPrice, onMaxPrice, onR
     );
 }
 
-// ── Category helpers ──────────────────────────────────────────────────────────
-const CATEGORY_ICON: Record<string, string> = {
-    All: "/assets/AllCategoryIcon.png",
-    Keychains: "/assets/KeychainCategoryIcon.png",
-    Amigurumi: "/assets/AmigurumiCategoryIcon.png",
-    "Fan Made": "/assets/FanMadeCategoryIcon.png",
-};
-
 function CategoryCard({ name, active, onClick }: { name: string; active: boolean; onClick: () => void }) {
+    const CATEGORY_EMOJI: Record<string, string> = {
+        Keychains: "🔑",
+        Amigurumi: "🐰",
+        "Fan Made": "⭐",
+    };
+
     return (
         <button type="button" onClick={onClick} className="shrink-0 flex flex-col items-center gap-1 transition-transform hover:scale-105">
-            <div className={`h-20 w-20 rounded-2xl border-4 bg-pink-100 flex items-center justify-center ${active ? "border-[#C0395A]" : "border-pink-200"}`}
+            <div className={`h-20 w-20 rounded-2xl border-4 flex items-center justify-center ${active ? "border-[#C0395A]" : "border-pink-200"}`}
                 style={{ clipPath: "polygon(50% 0%,56% 3%,63% 2%,68% 7%,75% 8%,79% 14%,86% 16%,89% 23%,95% 27%,97% 34%,100% 40%,100% 47%,98% 53%,100% 60%,98% 67%,95% 73%,89% 77%,87% 84%,81% 88%,75% 92%,68% 93%,62% 98%,56% 97%,50% 100%,44% 97%,38% 98%,32% 93%,25% 92%,19% 88%,13% 84%,11% 77%,5% 73%,2% 67%,0% 60%,2% 53%,0% 47%,0% 40%,3% 34%,5% 27%,11% 23%,14% 16%,21% 14%,25% 8%,32% 7%,37% 2%,44% 3%)" }}>
-                <Image src={CATEGORY_ICON[name] ?? "/assets/AllCategoryIcon.png"}
-                    alt={name} width={40} height={40} className="object-contain" />
+                <span className="text-2xl">{CATEGORY_EMOJI[name] ?? "🧶"}</span>
             </div>
             <span className={`text-xs font-semibold ${active ? "text-[#C0395A]" : "text-[#4B2E39]"}`}>{name}</span>
         </button>
@@ -179,13 +177,21 @@ function CatalogContent() {
     useEffect(() => {
         async function load() {
             setLoading(true);
-            const [productData, categoryData] = await Promise.all([
+            const [productData, categoryData, salesCounts] = await Promise.all([
                 getAllProductsWithRatings(),
                 getCategories(),
+                getProductSalesCounts(),   // ← add this
             ]);
             if (productData.length === 0)
                 setError("No products found. Check your Supabase connection.");
-            setAllProducts(productData);
+
+            // Attach sales_count to each product
+            const withSales = productData.map((p) => ({
+                ...p,
+                sales_count: salesCounts[p.id] ?? 0,
+            }));
+
+            setAllProducts(withSales);
             setCategories(categoryData);
             setLoading(false);
         }
@@ -207,7 +213,7 @@ function CatalogContent() {
         if (sortBy === "Latest")
             result = [...result].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         if (sortBy === "Top Sales")
-            result = [...result].sort((a, b) => b.price - a.price);
+            result = [...result].sort((a, b) => (b.sales_count ?? 0) - (a.sales_count ?? 0));
         return result;
     }, [allProducts, search, activeCategory, appliedMin, appliedMax, appliedRating, sortBy]);
 
@@ -249,7 +255,7 @@ function CatalogContent() {
                                     className="shrink-0 flex flex-col items-center gap-1 transition-transform hover:scale-105">
                                     <div className={`h-20 w-20 rounded-2xl border-4 flex items-center justify-center ${activeCategory === null ? "border-[#C0395A]" : "border-pink-200"}`}
                                         style={{ clipPath: "polygon(50% 0%,56% 3%,63% 2%,68% 7%,75% 8%,79% 14%,86% 16%,89% 23%,95% 27%,97% 34%,100% 40%,100% 47%,98% 53%,100% 60%,98% 67%,95% 73%,89% 77%,87% 84%,81% 88%,75% 92%,68% 93%,62% 98%,56% 97%,50% 100%,44% 97%,38% 98%,32% 93%,25% 92%,19% 88%,13% 84%,11% 77%,5% 73%,2% 67%,0% 60%,2% 53%,0% 47%,0% 40%,3% 34%,5% 27%,11% 23%,14% 16%,21% 14%,25% 8%,32% 7%,37% 2%,44% 3%)" }}>
-                                        <Image src="/assets/AllCategoryIcon.png" alt="All" width={40} height={40} className="object-contain" />
+                                        <span className="text-2xl">🌸</span>
                                     </div>
                                     <span className={`text-xs font-semibold ${activeCategory === null ? "text-[#C0395A]" : "text-[#4B2E39]"}`}>All</span>
                                 </button>

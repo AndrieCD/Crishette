@@ -1,13 +1,84 @@
 // src/lib/products.ts
 // ============================================================
 // All Supabase queries related to products.
-// Now includes: category filtering, reviews, and average ratings.
+// Includes: category filtering, reviews, average ratings, sales counts.
 // ============================================================
 
 import { supabase } from "./supabase";
 import type { Product } from "./types";
 
-// ── Get all published products ────────────────────────────────
+// ── Internal types ─────────────────────────────────────────────
+interface RawProductWithReviews extends Product {
+    reviews: { rating: number; user_id?: string; created_at?: string }[];
+}
+
+export interface ProductWithRating extends Product {
+    avg_rating: number;    // e.g. 3.7
+    review_count: number;  // e.g. 12
+    sales_count: number;   // total units sold in Completed orders
+}
+
+// ── Shared helper: compute avg rating from raw reviews array ──
+function computeAvgRating(reviews: { rating: number }[]): number {
+    if (reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+    return Math.round((sum / reviews.length) * 10) / 10;
+}
+
+// ── Shared helper: fetch sales counts for a batch of product IDs ──
+// Makes ONE query to order_items, filtered to Completed orders only.
+// Returns a map of { product_id: total units sold }.
+// Using a batch (instead of one query per product) keeps it efficient
+// — like doing a single SQL WHERE id IN (...) instead of N queries.
+async function fetchSalesCountsByIds(productIds: string[]): Promise<Record<string, number>> {
+    if (productIds.length === 0) return {};
+
+    const { data, error } = await supabase
+        .from("order_items")
+        .select(`
+            product_id,
+            quantity,
+            order:orders!inner ( status )
+        `)
+        .in("product_id", productIds)
+        .eq("order.status", "Completed");
+
+    if (error || !data) {
+        console.error("fetchSalesCountsByIds:", error?.message);
+        return {};
+    }
+
+    const counts: Record<string, number> = {};
+    for (const row of data as { product_id: string; quantity: number }[]) {
+        counts[row.product_id] = (counts[row.product_id] ?? 0) + row.quantity;
+    }
+    return counts;
+}
+
+// ── Get sales counts for ALL products (used by catalog page) ──
+// The catalog page calls this separately and merges it in, so
+// getAllProductsWithRatings doesn't need to make an extra query.
+export async function getProductSalesCounts(): Promise<Record<string, number>> {
+    const { data, error } = await supabase
+        .from("order_items")
+        .select(`
+            product_id,
+            quantity,
+            order:orders!inner ( status )
+        `)
+        .eq("order.status", "Completed");
+
+    if (error) { console.error("getProductSalesCounts:", error.message); return {}; }
+
+    const counts: Record<string, number> = {};
+    for (const row of data as { product_id: string; quantity: number }[]) {
+        counts[row.product_id] = (counts[row.product_id] ?? 0) + row.quantity;
+    }
+    return counts;
+}
+
+// ── Get all published products (plain, no ratings/sales) ──────
+// Used by the landing page — no sorting by rating or sales needed there.
 export async function getAllProducts(): Promise<Product[]> {
     const { data, error } = await supabase
         .from("products")
@@ -19,37 +90,31 @@ export async function getAllProducts(): Promise<Product[]> {
     return data as Product[];
 }
 
-// ── Get all published products WITH their average rating ──────
-// This joins the reviews table and computes avg(rating) per product.
-// Think of it like a SQL LEFT JOIN + GROUP BY in one call.
+// ── Get all published products WITH avg rating ─────────────────
+// sales_count starts as 0 here — the catalog page calls
+// getProductSalesCounts() separately and merges it in one pass,
+// which is more efficient than making N+1 queries inside this function.
 export async function getAllProductsWithRatings(): Promise<ProductWithRating[]> {
     const { data, error } = await supabase
         .from("products")
         .select(`
-      *,
-      reviews ( rating )
-    `)
+            *,
+            reviews ( rating )
+        `)
         .eq("is_published", true)
         .order("created_at", { ascending: false });
 
     if (error) { console.error("getAllProductsWithRatings:", error.message); return []; }
 
-    // Calculate the average rating for each product from its reviews array
-    return (data as RawProductWithReviews[]).map((p) => {
-        const reviews = p.reviews ?? [];
-        const avgRating =
-            reviews.length > 0
-                ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-                : 0;
-        return {
-            ...p,
-            avg_rating: Math.round(avgRating * 10) / 10, // e.g. 3.7
-            review_count: reviews.length,
-        };
-    });
+    return (data as RawProductWithReviews[]).map((p) => ({
+        ...p,
+        avg_rating: computeAvgRating(p.reviews ?? []),
+        review_count: (p.reviews ?? []).length,
+        sales_count: 0, // merged in by catalog page via getProductSalesCounts()
+    }));
 }
 
-// ── Get products by category ───────────────────────────────────
+// ── Get products by category WITH avg rating + sales count ────
 export async function getProductsByCategory(category: string): Promise<ProductWithRating[]> {
     const { data, error } = await supabase
         .from("products")
@@ -60,18 +125,18 @@ export async function getProductsByCategory(category: string): Promise<ProductWi
 
     if (error) { console.error("getProductsByCategory:", error.message); return []; }
 
-    return (data as RawProductWithReviews[]).map((p) => {
-        const reviews = p.reviews ?? [];
-        const avgRating =
-            reviews.length > 0
-                ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-                : 0;
-        return { ...p, avg_rating: Math.round(avgRating * 10) / 10, review_count: reviews.length };
-    });
+    const rawProducts = data as RawProductWithReviews[];
+    const salesCounts = await fetchSalesCountsByIds(rawProducts.map((p) => p.id));
+
+    return rawProducts.map((p) => ({
+        ...p,
+        avg_rating: computeAvgRating(p.reviews ?? []),
+        review_count: (p.reviews ?? []).length,
+        sales_count: salesCounts[p.id] ?? 0,
+    }));
 }
 
-// ── Get all unique categories from products table ─────────────
-// Used to build the Categories row dynamically from real DB data.
+// ── Get all unique category names from published products ──────
 export async function getCategories(): Promise<string[]> {
     const { data, error } = await supabase
         .from("products")
@@ -81,12 +146,11 @@ export async function getCategories(): Promise<string[]> {
 
     if (error) { console.error("getCategories:", error.message); return []; }
 
-    // De-duplicate: like using a Set in Java/C#
     const unique = [...new Set((data as { category: string }[]).map((p) => p.category))];
     return unique.sort();
 }
 
-// ── Get featured products (for landing page) ──────────────────
+// ── Get featured products (for landing page, plain Product) ───
 export async function getFeaturedProducts(): Promise<Product[]> {
     const { data, error } = await supabase
         .from("products")
@@ -99,7 +163,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     return data as Product[];
 }
 
-// ── Get a single product by ID ─────────────────────────────────
+// ── Get a single product by ID WITH avg rating + sales count ──
 export async function getProductById(id: string): Promise<ProductWithRating | null> {
     const { data, error } = await supabase
         .from("products")
@@ -111,24 +175,23 @@ export async function getProductById(id: string): Promise<ProductWithRating | nu
     if (error) { console.error("getProductById:", error.message); return null; }
 
     const p = data as RawProductWithReviews;
-    const reviews = p.reviews ?? [];
-    const avgRating =
-        reviews.length > 0
-            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-            : 0;
+    const salesCounts = await fetchSalesCountsByIds([id]);
 
-    return { ...p, avg_rating: Math.round(avgRating * 10) / 10, review_count: reviews.length };
+    return {
+        ...p,
+        avg_rating: computeAvgRating(p.reviews ?? []),
+        review_count: (p.reviews ?? []).length,
+        sales_count: salesCounts[id] ?? 0,
+    };
 }
 
 // ── Submit a review ────────────────────────────────────────────
-// A user can only review a product once (enforced by DB UNIQUE constraint).
+// Upsert = insert if not exists, update if it does (one review per user per product).
 export async function submitReview(
     userId: string,
     productId: string,
     rating: number
 ): Promise<{ success: boolean; error?: string }> {
-    // Upsert = insert if not exists, update if it does
-    // This handles editing an existing review gracefully
     const { error } = await supabase
         .from("reviews")
         .upsert(
@@ -140,7 +203,7 @@ export async function submitReview(
     return { success: true };
 }
 
-// ── Get a user's review for a specific product ─────────────────
+// ── Get a user's existing review for a product ─────────────────
 export async function getUserReview(
     userId: string,
     productId: string
@@ -155,7 +218,7 @@ export async function getUserReview(
     return data?.rating ?? null;
 }
 
-// ── ADMIN queries (unchanged) ──────────────────────────────────
+// ── ADMIN: Get ALL products (including unpublished) ────────────
 export async function adminGetAllProducts(): Promise<Product[]> {
     const { data, error } = await supabase
         .from("products")
@@ -166,6 +229,7 @@ export async function adminGetAllProducts(): Promise<Product[]> {
     return data as Product[];
 }
 
+// ── ADMIN: Create a new product ────────────────────────────────
 export async function adminCreateProduct(
     product: Omit<Product, "id" | "created_at" | "updated_at">
 ): Promise<{ success: boolean; product?: Product; error?: string }> {
@@ -175,6 +239,7 @@ export async function adminCreateProduct(
     return { success: true, product: data as Product };
 }
 
+// ── ADMIN: Update an existing product ─────────────────────────
 export async function adminUpdateProduct(
     id: string,
     updates: Partial<Omit<Product, "id" | "created_at" | "updated_at">>
@@ -185,6 +250,7 @@ export async function adminUpdateProduct(
     return { success: true, product: data as Product };
 }
 
+// ── ADMIN: Delete a product ────────────────────────────────────
 export async function adminDeleteProduct(
     id: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -193,29 +259,22 @@ export async function adminDeleteProduct(
     return { success: true };
 }
 
+// ── ADMIN: Toggle published status ────────────────────────────
 export async function adminTogglePublished(
-    id: string, is_published: boolean
+    id: string,
+    is_published: boolean
 ): Promise<{ success: boolean; error?: string }> {
     const { error } = await supabase.from("products").update({ is_published }).eq("id", id);
     if (error) return { success: false, error: error.message };
     return { success: true };
 }
 
+// ── ADMIN: Toggle featured status ─────────────────────────────
 export async function adminToggleFeatured(
-    id: string, is_featured: boolean
+    id: string,
+    is_featured: boolean
 ): Promise<{ success: boolean; error?: string }> {
     const { error } = await supabase.from("products").update({ is_featured }).eq("id", id);
     if (error) return { success: false, error: error.message };
     return { success: true };
-}
-
-// ── Internal types (only used inside this file + catalog page) ─
-
-interface RawProductWithReviews extends Product {
-    reviews: { rating: number; user_id?: string; created_at?: string }[];
-}
-
-export interface ProductWithRating extends Product {
-    avg_rating: number;    // e.g. 3.7
-    review_count: number;  // e.g. 12
 }

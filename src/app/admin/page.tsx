@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link"
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getSession, logout } from "@/lib/auth";
@@ -240,7 +241,19 @@ export default function AdminPage() {
                     <div className="flex items-center gap-3">
                         <Image src="/assets/CrishetteLogo.png" alt="Crishette" width={48} height={48} className="drop-shadow" />
                         <div className="w-px h-8 bg-[#C0395A]" />
-                        <span className="font-['Fredoka'] font-semibold text-[#C0395A] text-lg">product / list</span>
+                        {/* Nav links — active page is pink, inactive is faded */}
+                        <div className="flex items-center gap-3">
+                            <span className="font-['Fredoka'] font-semibold text-[#C0395A] text-lg">
+                                product / list
+                            </span>
+                            <span className="text-pink-200">·</span>
+                            <Link
+                                href="/admin/orders"
+                                className="font-['Fredoka'] font-semibold text-pink-300 text-lg hover:text-[#C0395A] transition-colors"
+                            >
+                                orders
+                            </Link>
+                        </div>
                     </div>
                     <button onClick={handleLogout}
                         className="font-['Fredoka'] font-bold text-[#C0395A] text-sm hover:underline tracking-wide uppercase">

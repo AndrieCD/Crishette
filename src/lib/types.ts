@@ -4,7 +4,7 @@
 // ============================================================
 
 export type UserRole = "user" | "admin";
-export type OrderStatus = "Pending" | "Processing" | "Shipped" | "Completed" | "Cancelled";
+export type OrderStatus = "Pending" | "Processing" | "In Transit" | "Completed" | "Cancelled";
 
 export interface CrishetteUser {
     id: string;
