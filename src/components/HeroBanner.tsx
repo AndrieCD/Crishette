@@ -1,7 +1,4 @@
 // src/components/HeroBanner.tsx
-// Reusable scrolling marquee banner with centered logo.
-// Used on the Landing page — can be dropped into any page that needs it.
-// No props needed — it's purely decorative.
 
 import Image from "next/image";
 

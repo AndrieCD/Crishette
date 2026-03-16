@@ -1,10 +1,4 @@
 // src/lib/auth.ts
-// ============================================================
-// Custom Auth for Crishette — no Supabase Auth used.
-// All accounts live in our own `users` table.
-// Session is stored in localStorage (fine for a school project).
-// Think of this like an AuthService class in C# / Spring Boot.
-// ============================================================
 
 import { supabase } from "./supabase";
 import bcrypt from "bcryptjs";
@@ -96,7 +90,6 @@ export async function login(
   const match = await bcrypt.compare(password, data.password);
   if (!match) return { success: false, error: "Incorrect password." };
 
-  // Build session object — exclude the password hash!
   const user: CrishetteUser = {
     id: data.id,
     username: data.username,

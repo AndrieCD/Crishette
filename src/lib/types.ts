@@ -1,7 +1,4 @@
 // src/lib/types.ts
-// ============================================================
-// Shared TypeScript types for every database table.
-// ============================================================
 
 export type UserRole = "user" | "admin";
 export type OrderStatus = "Pending" | "Processing" | "In Transit" | "Completed" | "Cancelled";
@@ -27,7 +24,7 @@ export interface Product {
     colors: string[];
     sizes: string[];
     stock: number;
-    category?: string;       // ← NEW: e.g. "Keychains", "Amigurumi"
+    category?: string;     
     is_featured: boolean;
     is_published: boolean;
     created_at: string;
@@ -39,7 +36,7 @@ export interface Review {
     id: string;
     product_id: string;
     user_id: string;
-    rating: number;          // 1–5
+    rating: number;          
     created_at: string;
 }
 

@@ -1,8 +1,5 @@
 // src/lib/products.ts
-// ============================================================
-// All Supabase queries related to products.
-// Includes: category filtering, reviews, average ratings, sales counts.
-// ============================================================
+
 
 import { supabase } from "./supabase";
 import type { Product } from "./types";
@@ -13,9 +10,9 @@ interface RawProductWithReviews extends Product {
 }
 
 export interface ProductWithRating extends Product {
-    avg_rating: number;    // e.g. 3.7
-    review_count: number;  // e.g. 12
-    sales_count: number;   // total units sold in Completed orders
+    avg_rating: number;    
+    review_count: number;  
+    sales_count: number;   
 }
 
 // ── Shared helper: compute avg rating from raw reviews array ──
@@ -26,10 +23,6 @@ function computeAvgRating(reviews: { rating: number }[]): number {
 }
 
 // ── Shared helper: fetch sales counts for a batch of product IDs ──
-// Makes ONE query to order_items, filtered to Completed orders only.
-// Returns a map of { product_id: total units sold }.
-// Using a batch (instead of one query per product) keeps it efficient
-// — like doing a single SQL WHERE id IN (...) instead of N queries.
 async function fetchSalesCountsByIds(productIds: string[]): Promise<Record<string, number>> {
     if (productIds.length === 0) return {};
 
@@ -56,8 +49,6 @@ async function fetchSalesCountsByIds(productIds: string[]): Promise<Record<strin
 }
 
 // ── Get sales counts for ALL products (used by catalog page) ──
-// The catalog page calls this separately and merges it in, so
-// getAllProductsWithRatings doesn't need to make an extra query.
 export async function getProductSalesCounts(): Promise<Record<string, number>> {
     const { data, error } = await supabase
         .from("order_items")
@@ -78,7 +69,6 @@ export async function getProductSalesCounts(): Promise<Record<string, number>> {
 }
 
 // ── Get all published products (plain, no ratings/sales) ──────
-// Used by the landing page — no sorting by rating or sales needed there.
 export async function getAllProducts(): Promise<Product[]> {
     const { data, error } = await supabase
         .from("products")
@@ -91,9 +81,6 @@ export async function getAllProducts(): Promise<Product[]> {
 }
 
 // ── Get all published products WITH avg rating ─────────────────
-// sales_count starts as 0 here — the catalog page calls
-// getProductSalesCounts() separately and merges it in one pass,
-// which is more efficient than making N+1 queries inside this function.
 export async function getAllProductsWithRatings(): Promise<ProductWithRating[]> {
     const { data, error } = await supabase
         .from("products")
@@ -110,7 +97,7 @@ export async function getAllProductsWithRatings(): Promise<ProductWithRating[]> 
         ...p,
         avg_rating: computeAvgRating(p.reviews ?? []),
         review_count: (p.reviews ?? []).length,
-        sales_count: 0, // merged in by catalog page via getProductSalesCounts()
+        sales_count: 0, 
     }));
 }
 
@@ -186,7 +173,6 @@ export async function getProductById(id: string): Promise<ProductWithRating | nu
 }
 
 // ── Submit a review ────────────────────────────────────────────
-// Upsert = insert if not exists, update if it does (one review per user per product).
 export async function submitReview(
     userId: string,
     productId: string,

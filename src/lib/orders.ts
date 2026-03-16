@@ -1,7 +1,4 @@
 // src/lib/orders.ts
-// ============================================================
-// All Supabase queries for orders — placing and viewing them.
-// ============================================================
 
 import { supabase } from "./supabase";
 import type { Order, CartItem } from "./types";
@@ -68,14 +65,10 @@ export async function getUserOrders(userId: string): Promise<Order[]> {
 }
 
 // ── USER: Cancel a pending order ──────────────────────────────
-// Only works when status === "Pending" and the order belongs to this user.
-// The user_id check is a security measure — without it, any logged-in user
-// could cancel any order just by knowing its ID.
 export async function cancelOrder(
     orderId: string,
     userId: string
 ): Promise<{ success: boolean; error?: string }> {
-    // Verify it's still Pending AND belongs to this user
     const { data: existing } = await supabase
         .from("orders")
         .select("status, user_id")

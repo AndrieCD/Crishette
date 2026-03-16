@@ -1,9 +1,4 @@
 // src/lib/supabase.ts
-// ============================================================
-// Supabase Client — single shared instance for the whole app
-// Think of this like a static DatabaseContext in C# or a
-// singleton DbHelper in Java. We create it once and reuse it.
-// ============================================================
 
 import { createClient } from "@supabase/supabase-js";
 

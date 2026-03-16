@@ -1,7 +1,4 @@
 // src/components/Footer.tsx
-// Reusable "About Crishette" footer section.
-// Drop this at the bottom of any page that needs it.
-// No props needed.
 
 export default function Footer() {
   return (

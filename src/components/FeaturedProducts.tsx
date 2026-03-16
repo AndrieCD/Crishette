@@ -1,10 +1,5 @@
 // src/components/FeaturedProducts.tsx
-// Fetches and displays featured products from Supabase.
-// Uses getFeaturedProducts() from lib/products — make sure that function
-// exists and queries your products table (e.g. WHERE featured = true, or LIMIT 3).
-//
-// This is an async React Server Component — no 'use client' needed!
-// It fetches data on the server, so no useEffect or loading state required.
+
 
 import Image from "next/image";
 import Link from "next/link";
@@ -61,11 +56,8 @@ function FeaturedCard({
 
 // ── Main section ──────────────────────────────────────────────────────────────
 export default async function FeaturedProducts() {
-  // Fetch featured products from Supabase on the server
-  // If getFeaturedProducts() isn't set up yet, see the note below ⬇️
   const products = await getFeaturedProducts();
 
-  // Graceful empty state
   if (!products || products.length === 0) {
     return (
       <section className="px-4 py-10 md:px-8">

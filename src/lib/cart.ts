@@ -1,16 +1,12 @@
 // src/lib/cart.ts
-// ============================================================
-// All Supabase queries for the shopping cart.
-// Think of this like a CartRepository/CartService in Java/C#.
-// ============================================================
+
 
 import { supabase } from "./supabase";
 import type { CartItem } from "./types";
 
 // ── Get all cart items for a user (with product details joined) 
 export async function getCartItems(userId: string): Promise<CartItem[]> {
-  // This is like a SQL JOIN — Supabase fetches cart_items AND
-  // the related product row in one query using the foreign key.
+
   const { data, error } = await supabase
     .from("cart_items")
     .select(`
@@ -46,7 +42,6 @@ export async function addToCart(
     .maybeSingle();
 
   if (existing) {
-    // Already in cart → just increase quantity
     const { error } = await supabase
       .from("cart_items")
       .update({ quantity: existing.quantity + quantity })

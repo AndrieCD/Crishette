@@ -1,7 +1,4 @@
 // src/lib/likes.ts
-// ============================================================
-// All Supabase queries for the "My Likes" feature.
-// ============================================================
 
 import { supabase } from "./supabase";
 import type { Like } from "./types";
