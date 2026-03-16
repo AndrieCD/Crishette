@@ -256,9 +256,13 @@ function LoginPanel({ onSwitchToRegister }: { onSwitchToRegister: () => void }) 
             router.push("/");
         }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         router.refresh(); 
 =======
         router.refresh();
+>>>>>>> Stashed changes
+=======
+        router.refresh(); 
 >>>>>>> Stashed changes
     };
 

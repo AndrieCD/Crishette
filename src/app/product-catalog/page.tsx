@@ -332,9 +332,13 @@ function CatalogContent() {
                 getAllProductsWithRatings(),
                 getCategories(),
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 getProductSalesCounts(),   
 =======
                 getProductSalesCounts(),
+>>>>>>> Stashed changes
+=======
+                getProductSalesCounts(),   
 >>>>>>> Stashed changes
             ]);
             if (productData.length === 0)

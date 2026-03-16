@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 type CartItem = {
   id: string;
   name: string;
@@ -22,6 +23,8 @@ type CartItem = {
 function ScallopHeader() {
   const scallops = Array.from({ length: 12 });
 =======
+=======
+>>>>>>> Stashed changes
 type CartItemWithSelection = CartItem & { selected: boolean };
 
 >>>>>>> Stashed changes
@@ -217,6 +220,10 @@ export default function ShoppingCartPage() {
         [cartItems]
     );
 
+<<<<<<< Updated upstream
+=======
+    // ── Handlers ───────────────────────────────────────────────
+>>>>>>> Stashed changes
     const toggleSelected = (id: string) => {
         setCartItems((prev) =>
             prev.map((item) => item.id === id ? { ...item, selected: !item.selected } : item)

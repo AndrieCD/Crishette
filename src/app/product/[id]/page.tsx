@@ -34,6 +34,7 @@ function ScallopHeader() {
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 function TopNavIcon({
   href,
   label,
@@ -86,6 +87,8 @@ function QuantityControl({
     </div>
   );
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 function StarDisplay({ value, count }: { value: number; count: number }) {

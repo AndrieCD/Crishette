@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // src/app/Land.tsx
 <<<<<<< Updated upstream
 // StoreFront / Landing Page — matches Section 7 Figma prototype
@@ -8,6 +9,8 @@
 import Image from "next/image";
 import Link from "next/link";
 =======
+=======
+>>>>>>> Stashed changes
 import Navbar from "@/components/Navbar";
 import HeroBanner from "@/components/HeroBanner";
 import FeaturedProducts from "@/components/FeaturedProducts";

@@ -137,6 +137,10 @@ export default function CheckoutPage() {
     const [placing, setPlacing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderError, setOrderError] = useState<string | null>(null);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+
 >>>>>>> Stashed changes
     const [validationErrors, setValidationErrors] = useState<{ phone?: string; address?: string }>({});
 >>>>>>> Stashed changes
@@ -147,9 +151,12 @@ export default function CheckoutPage() {
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   const [draftAddress, setDraftAddress] = useState<Address>(initialAddress);
   const router = useRouter();
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     const isMissingPhone = !address.phone.trim();

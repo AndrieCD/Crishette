@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 type ShippingOption = {
   id: string;
   label: string;
@@ -37,6 +38,8 @@ const shippingOptions: ShippingOption[] = [
     eta: "(5–7 business days)",
   },
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 const SHIPPING_OPTIONS = [
